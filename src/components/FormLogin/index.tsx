@@ -1,0 +1,91 @@
+import styles from './FormLogin.module.scss'
+import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { ILoginAccountUserDto } from '../../interfaces'
+import { isKeySpace } from '../../helpers'
+import { useDispatch, useSelector } from 'react-redux'
+import { loginAccountUserThunk } from './thunks'
+import { store } from '../../redux/store'
+import { successSelector, messageSelector } from './selectors'
+import { sliceFormLogin } from './slice'
+
+function FormLogin() {
+  const dispatch = useDispatch<typeof store.dispatch>()
+  const [hidePassword, setHidePassword] = useState(true)
+  const [phoneOrEmail, setPhoneOrEmail] = useState('')
+  const [password, setPassword] = useState('')
+
+  const success = useSelector(successSelector)
+  const message = useSelector(messageSelector)
+
+  const handleLogin = () => {
+    const loginAccountUserDto: ILoginAccountUserDto = {
+      phone_or_email: phoneOrEmail.trim(),
+      password: password.trim(),
+    }
+    dispatch(loginAccountUserThunk(loginAccountUserDto))
+  }
+
+  window.onkeydown = (e) => {
+    if (e.key === 'Enter' && phoneOrEmail.trim() && password.trim()) {
+      handleLogin()
+    }
+  }
+
+  return (
+    <div className={styles.FormLogin}>
+      <input
+        type='text'
+        placeholder='Email or phone number'
+        value={phoneOrEmail}
+        onChange={(e) => {
+          if (!isKeySpace(e.target.value)) {
+            setPhoneOrEmail(e.target.value)
+            dispatch(sliceFormLogin.actions.setMessage(''))
+          }
+        }}
+      />
+      <div className={styles.containerInput}>
+        <input
+          type={hidePassword ? 'password' : 'text'}
+          placeholder='Password'
+          value={password}
+          onChange={(e) => {
+            if (!isKeySpace(e.target.value)) {
+              setPassword(e.target.value)
+              dispatch(sliceFormLogin.actions.setMessage(''))
+            }
+          }}
+        />
+        <i
+          onClick={() => setHidePassword(!hidePassword)}
+          className={hidePassword ? 'fas fa-eye' : 'fas fa-eye-slash'}
+        ></i>
+      </div>
+      <div
+        style={{ color: success ? '#28a745' : '#dc3545' }}
+        className={styles.announce}
+      >
+        {message && (
+          <i
+            className={
+              success ? 'fas fa-check-circle' : 'fas fa-exclamation-circle'
+            }
+          ></i>
+        )}
+        <span>{message}</span>
+      </div>
+      <div className={styles.containerBtnSubmit}>
+        <button onClick={handleLogin}>Log In</button>
+        <Link
+          onClick={() => dispatch(sliceFormLogin.actions.setMessage(''))}
+          to='/register'
+        >
+          Don't have an account?
+        </Link>
+      </div>
+    </div>
+  )
+}
+
+export default FormLogin

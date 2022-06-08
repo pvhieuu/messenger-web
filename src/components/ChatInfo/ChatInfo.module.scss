@@ -1,0 +1,81 @@
+.ChatInfo {
+  width: 354px;
+  border-left: 1px solid rgba($color: #000000, $alpha: 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 12px;
+  overflow-y: scroll;
+  > img {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: 1px solid rgba($color: #000000, $alpha: 0.3);
+  }
+  > p {
+    margin: 12px 0;
+    font-size: 16px;
+    font-weight: 500;
+    &:hover {
+      cursor: pointer;
+      text-decoration: underline;
+    }
+  }
+  > .label {
+    width: 100%;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 8px;
+    padding: 0 16px;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.05s linear;
+    &:hover {
+      cursor: pointer;
+      background-color: rgba($color: #000000, $alpha: 0.05);
+    }
+    > i {
+      transition: all 0.2s linear;
+    }
+    > i.rotate {
+      transform: rotate(-180deg);
+    }
+  }
+  > ul {
+    width: 100%;
+    > li {
+      width: 100%;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      border-radius: 8px;
+      padding: 0 16px;
+      font-size: 14px;
+      transition: all 0.05s linear;
+      animation: showOptions 0.2s linear;
+      &:hover {
+        cursor: pointer;
+        background-color: rgba($color: #000000, $alpha: 0.05);
+      }
+      @keyframes showOptions {
+        from {
+          height: 0px;
+        }
+      }
+      > i {
+        min-width: 30px;
+        font-size: 15px;
+      }
+    }
+  }
+  > ul:nth-child(4) {
+    > li:nth-child(1),
+    > li:nth-child(2) {
+      > i {
+        color: var(--main-color);
+      }
+    }
+  }
+}
