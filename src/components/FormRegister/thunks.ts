@@ -3,7 +3,7 @@ import { contentType, url } from '../../api'
 import { ICreateUserDto } from '../../interfaces'
 
 export const registerNewUserThunk = createAsyncThunk(
-  'FormRegister',
+  'FormRegister/registerNewUserThunk',
   async (createUserDto: ICreateUserDto) => {
     const res = await fetch(`${url}/user/register`, {
       method: 'POST',

@@ -1,21 +1,116 @@
 import clsx from 'clsx'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { useDebounce } from '../../hooks'
+import { IChangeAvatarDto } from '../../interfaces'
+import { store } from '../../redux/store'
+import { sliceContentSidebar } from '../ContentSidebar/slice'
+import { searchListUsersThunk } from '../ContentSidebar/thunks'
+import { sliceFormLogin } from '../FormLogin/slice'
+import { logoutAccountUserThunk } from '../FormLogin/thunks'
 import styles from './HeaderSidebar.module.scss'
+import {
+  contentSearchSelector,
+  myInfoSelector,
+  showSearchUsersSelector,
+} from './selectors'
+import { sliceHeaderSidebar } from './slice'
+import { changeAvatarThunk, getMyInfoThunk } from './thunks'
 
 function HeaderSidebar() {
+  const dispatch = useDispatch<typeof store.dispatch>()
   const [showOptions, setShowOptions] = useState(false)
-  const showSearchUsers = false
+  const [showChangeAvatar, setShowChangeAvatar] = useState(false)
+  const [newAvatar, setNewAvatar] = useState('')
+
+  const showSearchUsers = useSelector(showSearchUsersSelector)
+  const myInfo = useSelector(myInfoSelector)
+  const contentSearch = useSelector(contentSearchSelector)
+
+  const debounce = useDebounce(contentSearch, 500)
+
+  useEffect(() => {
+    debounce.trim()
+      ? dispatch(searchListUsersThunk(debounce))
+      : dispatch(sliceContentSidebar.actions.setListUsers([]))
+  }, [debounce, dispatch])
 
   window.onclick = () => {
-    showOptions && setShowOptions(!showOptions)
+    showOptions && setShowOptions(false)
+    showChangeAvatar && setShowChangeAvatar(false)
+  }
+
+  useEffect(() => {
+    dispatch(getMyInfoThunk())
+  }, [dispatch])
+
+  const handleChangeFile = (e: any) => {
+    const file = e.target.files[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onload = function () {
+        setNewAvatar(reader.result?.toString() || '')
+      }
+      reader.onerror = function () {
+        setNewAvatar('')
+      }
+    } else {
+      setNewAvatar('')
+    }
+  }
+
+  const handleChangeAvatar = () => {
+    const changeAvatarDto: IChangeAvatarDto = {
+      new_avatar: newAvatar.trim() ? newAvatar.trim() : null,
+    }
+    dispatch(changeAvatarThunk(changeAvatarDto))
+  }
+
+  const handleLogout = () => {
+    dispatch(logoutAccountUserThunk())
+    dispatch(sliceFormLogin.actions.setMessage(''))
   }
 
   return (
     <div className={styles.HeaderSidebar}>
       <div className={styles.containerInfo}>
         <div className={styles.left}>
-          <img src={require('../../assets/img/avatar.png')} alt='avatar' />
+          <img
+            onClick={(e) => {
+              setShowChangeAvatar(true)
+              e.stopPropagation()
+            }}
+            src={
+              myInfo?.avatar
+                ? myInfo.avatar
+                : require('../../assets/img/avatar.png')
+            }
+            alt='avatar'
+          />
           <span>Chat</span>
+          {showChangeAvatar && (
+            <div className={styles.changeAvatar}>
+              <div
+                onClick={(e) => e.stopPropagation()}
+                className={styles.modal}
+              >
+                <p>Change Avatar</p>
+                <label htmlFor='image'>Choose file image</label>
+                <input
+                  type='file'
+                  id='image'
+                  onChange={(e) => handleChangeFile(e)}
+                />
+                <div className={styles.containerBtnSubmit}>
+                  <button onClick={() => setShowChangeAvatar(false)}>
+                    Back
+                  </button>
+                  <button onClick={handleChangeAvatar}>Submit</button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
         <ul className={styles.right}>
           <li>
@@ -82,7 +177,7 @@ function HeaderSidebar() {
                   <i className='fab fa-facebook-messenger'></i>
                   <span>Mới! Messenger dành cho máy Mac</span>
                 </li>
-                <li>
+                <li onClick={handleLogout}>
                   <i className='fas fa-sign-out'></i>
                   <span>Đăng xuất</span>
                 </li>
@@ -93,15 +188,30 @@ function HeaderSidebar() {
       </div>
       <div className={styles.containerInput}>
         {showSearchUsers && (
-          <i className={clsx('far fa-arrow-left', styles.arrow)}></i>
+          <i
+            onClick={() => {
+              dispatch(sliceHeaderSidebar.actions.setShowSearchUsers(false))
+              dispatch(sliceHeaderSidebar.actions.setContentSearch(''))
+            }}
+            className={clsx('far fa-arrow-left', styles.arrow)}
+          ></i>
         )}
         {!showSearchUsers && (
           <i className={clsx('far fa-search', styles.search)}></i>
         )}
         <input
+          onFocus={() =>
+            dispatch(sliceHeaderSidebar.actions.setShowSearchUsers(true))
+          }
           className={showSearchUsers ? styles.padding : ''}
           type='text'
           placeholder='Search on Messenger'
+          value={contentSearch}
+          onChange={(e) =>
+            dispatch(
+              sliceHeaderSidebar.actions.setContentSearch(e.target.value)
+            )
+          }
         />
       </div>
     </div>

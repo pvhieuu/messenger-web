@@ -1,5 +1,7 @@
 import clsx from 'clsx'
 import { useState } from 'react'
+import { useSelector } from 'react-redux'
+import { chatInfoSelector } from '../HeaderChat/selectors'
 import styles from './ChatInfo.module.scss'
 
 function ChatInfo() {
@@ -7,10 +9,18 @@ function ChatInfo() {
   const [showOptions2, setShowOptions2] = useState(false)
   const [showOptions3, setShowOptions3] = useState(false)
 
+  const chatInfo = useSelector(chatInfoSelector)
+  const { guest } = chatInfo
+
   return (
     <div className={styles.ChatInfo}>
-      <img src={require('../../assets/img/avatar.png')} alt='avatar' />
-      <p>Nguyễn Văn Vinh</p>
+      <img
+        src={
+          guest.avatar ? guest.avatar : require('../../assets/img/avatar.png')
+        }
+        alt='avatar'
+      />
+      <p>{guest.fullname}</p>
       <div
         onClick={() => setShowOptions1(!showOptions1)}
         className={styles.label}

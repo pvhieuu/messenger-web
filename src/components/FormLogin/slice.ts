@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { loginAccountUserThunk } from './thunks'
+import { loginAccountUserThunk, logoutAccountUserThunk } from './thunks'
 
 export const sliceFormLogin = createSlice({
   name: 'FormLogin',
@@ -12,16 +12,17 @@ export const sliceFormLogin = createSlice({
     setMessage: (state, action) => {
       state.message = action.payload
     },
-    setAccessToken: (state, action) => {
-      state.accessToken = action.payload
-    },
   },
   extraReducers: (builder) =>
-    builder.addCase(loginAccountUserThunk.fulfilled, (state, action) => {
-      state.success = action.payload.success
-      state.message = action.payload.message
-      if (action.payload.success) {
-        state.accessToken = action.payload.data.access_token
-      }
-    }),
+    builder
+      .addCase(loginAccountUserThunk.fulfilled, (state, action) => {
+        state.success = action.payload.success
+        state.message = action.payload.message
+        if (action.payload.success) {
+          state.accessToken = action.payload.data.access_token
+        }
+      })
+      .addCase(logoutAccountUserThunk.fulfilled, (state, action) => {
+        state.accessToken = null
+      }),
 })
