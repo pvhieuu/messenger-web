@@ -37,6 +37,18 @@ function FooterChat() {
     }
   }
 
+  const handleSendMainIcon = () => {
+    const createMessageDto: ICreateMessageDto = {
+      content: 'fas fa-thumbs-up',
+      type: TYPE_MESSAGE.ICON,
+      chat_id: chatInfo.id,
+      guest_chat_id: chatInfo.guest_chat_id,
+      guest_id: chatInfo.guest.id,
+    }
+    dispatch(sendMessageThunk(createMessageDto))
+    inputRef.current?.focus()
+  }
+
   return (
     <div className={styles.FooterChat}>
       {sending && <p>Sending...</p>}
@@ -60,7 +72,7 @@ function FooterChat() {
       {content.trim() ? (
         <i onClick={handleSendMessage} className='fas fa-paper-plane'></i>
       ) : (
-        <i className='fas fa-thumbs-up'></i>
+        <i onClick={handleSendMainIcon} className='fas fa-thumbs-up'></i>
       )}
     </div>
   )

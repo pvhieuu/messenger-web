@@ -1,3 +1,4 @@
+import clsx from 'clsx'
 import { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { IMessage } from '../../interfaces'
@@ -42,12 +43,12 @@ function ContentChat() {
 
   const handleScroll = (e: any) => {
     setScrollMany(
-      e.target.scrollHeight - e.target.scrollTop - e.target.offsetHeight > 10
+      e.target.scrollHeight - e.target.scrollTop - e.target.offsetHeight > 30
     )
   }
 
   useEffect(() => {
-    setScrollMany(true)
+    setScrollMany(false)
   }, [chatInfo])
 
   useEffect(() => {
@@ -80,9 +81,18 @@ function ContentChat() {
       {listMessages.map((message: IMessage) => (
         <li
           key={message.id}
-          className={message.sender_id === chatInfo.host.id ? styles.me : ''}
+          className={clsx(
+            message.sender_id === chatInfo.host.id ? styles.me : '',
+            message.type === 'icon' ? styles.icon : ''
+          )}
         >
-          <span>{message.content}</span>
+          <span>
+            {message.type === 'icon' && message.content.startsWith('fas') ? (
+              <i className={message.content}></i>
+            ) : (
+              message.content
+            )}
+          </span>
           <div className={styles.options}>
             <i className='far fa-smile'></i>
             <i className='fas fa-share'></i>

@@ -47,6 +47,14 @@
       flex-direction: row-reverse;
     }
   }
+  > li.icon {
+    > span {
+      font-size: 30px;
+      padding: 0;
+      background-color: transparent;
+      color: var(--main-color);
+    }
+  }
   p {
     color: black;
     font-size: 12px;

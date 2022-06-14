@@ -30,8 +30,9 @@ import { chatInfoSelector } from '../HeaderChat/selectors'
 function ContentSidebar() {
   const dispatch = useDispatch<typeof store.dispatch>()
   const [showOptions, setShowOptions] = useState<string[]>([])
-  const showSearchUsers = useSelector(showSearchUsersSelector)
+  const [refreshTime, setRefreshTime] = useState(Math.random())
 
+  const showSearchUsers = useSelector(showSearchUsersSelector)
   const listChats = useSelector(listChatsSelector)
   const listUsers = useSelector(listUsersSelector)
   const myInfo = useSelector(myInfoSelector)
@@ -42,6 +43,16 @@ function ContentSidebar() {
   useEffect(() => {
     dispatch(getListChatsThunk())
   }, [dispatch])
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setRefreshTime(Math.random())
+    }, 1000 * 3)
+
+    return () => {
+      clearInterval(id)
+    }
+  }, [])
 
   const handleCreateNewChat = (guest_id: string) => {
     dispatch(createNewChatThunk({ guest_id }))
@@ -175,7 +186,11 @@ function ContentSidebar() {
                       chat.last_message[0].sender_id === myInfo.id
                         ? 'You: '
                         : ''
-                    }${chat.last_message[0].content}`}</span>
+                    }${
+                      chat.last_message[0].content === 'fas fa-thumbs-up'
+                        ? '👍'
+                        : chat.last_message[0].content
+                    }`}</span>
                     <span>{`- ${moment(chat.last_message[0].created_at)
                       .fromNow()
                       .replace(' ago', '')
@@ -245,11 +260,16 @@ function ContentSidebar() {
           </Fragment>
         )
       })}
+      {refreshTime && ''}
     </ul>
   ) : (
     <ul className={styles.ContentSearch}>
       {listUsers.map((user: IUser) => (
-        <li onClick={() => handleCreateNewChat(user.id)} key={user.id}>
+        <li
+          onClick={() => handleCreateNewChat(user.id)}
+          key={user.id}
+          className={user.status_online ? styles.online : ''}
+        >
           <img
             src={
               user.avatar ? user.avatar : require('../../assets/img/avatar.png')

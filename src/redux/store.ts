@@ -6,6 +6,7 @@ import { sliceFormLogin } from '../components/FormLogin/slice'
 import { sliceFormRegister } from '../components/FormRegister/slice'
 import { sliceHeaderChat } from '../components/HeaderChat/slice'
 import { sliceHeaderSidebar } from '../components/HeaderSidebar/slice'
+import { sliceDashboard } from '../pages/Dashboard/slice'
 
 export const store = configureStore({
   reducer: {
@@ -16,5 +17,6 @@ export const store = configureStore({
     ContentSidebar: sliceContentSidebar.reducer,
     ContentChat: sliceContentChat.reducer,
     FooterChat: sliceFooterChat.reducer,
+    Dashboard: sliceDashboard.reducer,
   },
 })

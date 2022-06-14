@@ -1,4 +1,4 @@
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import ChatInfo from '../../components/ChatInfo'
 import ContentChat from '../../components/ContentChat'
 import ContentSidebar from '../../components/ContentSidebar'
@@ -13,12 +13,20 @@ import HeaderSidebar from '../../components/HeaderSidebar'
 import styles from './Dashboard.module.scss'
 import { io } from 'socket.io-client'
 import { url } from '../../api'
+import { useEffect } from 'react'
+import { store } from '../../redux/store'
+import { updateStatusOnlineThunk } from './thunks'
 
 export const socket = io(url)
 
 function Dashboard() {
+  const dispatch = useDispatch<typeof store.dispatch>()
   const showChatInfo = useSelector(showChatInfoSelector)
   const chatInfo = useSelector(chatInfoSelector)
+
+  useEffect(() => {
+    dispatch(updateStatusOnlineThunk({ status_online: true }))
+  }, [dispatch])
 
   return (
     <div className={styles.Dashboard}>

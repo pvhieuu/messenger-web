@@ -86,3 +86,7 @@ export interface ICreateMessageDto {
 export interface IUpdateReadedDto {
   chat_id: string
 }
+
+export interface IUpdateStatusOnlineDto {
+  status_online: boolean
+}
