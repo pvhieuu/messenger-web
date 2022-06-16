@@ -19,9 +19,11 @@ function HeaderChat() {
           }
           alt='avatar'
         />
-        <span>{guest.fullname}</span>
+        <span>
+          {chatInfo.nickname_guest ? chatInfo.nickname_guest : guest.fullname}
+        </span>
       </div>
-      <div className={styles.right}>
+      <div style={{ color: chatInfo.color }} className={styles.right}>
         <i className='fas fa-phone-alt'></i>
         <i className='fas fa-video'></i>
         <i

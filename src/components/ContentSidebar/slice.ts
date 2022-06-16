@@ -48,6 +48,34 @@ export const sliceContentSidebar = createSlice({
     listenChat: (state, action) => {
       state.listChats = [action.payload, ...state.listChats]
     },
+    updateNickname: (state, action) => {
+      state.listChats = state.listChats.map((chat: IChat) =>
+        chat.id === action.payload.chat_id
+          ? { ...chat, ...action.payload.data }
+          : chat
+      )
+    },
+    updateColor: (state, action) => {
+      state.listChats = state.listChats.map((chat: IChat) =>
+        chat.id === action.payload.chat_id
+          ? { ...chat, color: action.payload.color }
+          : chat
+      )
+    },
+    updateBackgroundColor: (state, action) => {
+      state.listChats = state.listChats.map((chat: IChat) =>
+        chat.id === action.payload.chat_id
+          ? { ...chat, background_color: action.payload.background_color }
+          : chat
+      )
+    },
+    updateEmoji: (state, action) => {
+      state.listChats = state.listChats.map((chat: IChat) =>
+        chat.id === action.payload.chat_id
+          ? { ...chat, emoji: action.payload.emoji }
+          : chat
+      )
+    },
   },
   extraReducers: (builder) =>
     builder

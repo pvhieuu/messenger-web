@@ -1,7 +1,8 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { isKeySpace } from '../../helpers'
-import { ICreateMessageDto, TYPE_MESSAGE } from '../../interfaces'
+import { EMOJI } from '../../constants'
+import { createDtoSendMessage, isKeySpace } from '../../helpers'
+import { TYPE_MESSAGE } from '../../interfaces'
 import { store } from '../../redux/store'
 import { sendingSelector } from '../ContentChat/selectors'
 import { sendMessageThunk } from '../ContentChat/thunks'
@@ -12,6 +13,7 @@ import { sliceFooterChat } from './slice'
 
 function FooterChat() {
   const dispatch = useDispatch<typeof store.dispatch>()
+  const [showEmojiModal, setShowEmojiModal] = useState(false)
 
   const content = useSelector(contentSelector)
   const chatInfo = useSelector(chatInfoSelector)
@@ -19,14 +21,11 @@ function FooterChat() {
   const sending = useSelector(sendingSelector)
 
   const handleSendMessage = () => {
-    const createMessageDto: ICreateMessageDto = {
-      content: content.trim(),
-      type: TYPE_MESSAGE.TEXT,
-      chat_id: chatInfo.id,
-      guest_chat_id: chatInfo.guest_chat_id,
-      guest_id: chatInfo.guest.id,
-    }
-    dispatch(sendMessageThunk(createMessageDto))
+    dispatch(
+      sendMessageThunk(
+        createDtoSendMessage(content, TYPE_MESSAGE.TEXT, chatInfo)
+      )
+    )
     dispatch(sliceFooterChat.actions.setContent(''))
     inputRef.current?.focus()
   }
@@ -38,23 +37,33 @@ function FooterChat() {
   }
 
   const handleSendMainIcon = () => {
-    const createMessageDto: ICreateMessageDto = {
-      content: 'fas fa-thumbs-up',
-      type: TYPE_MESSAGE.ICON,
-      chat_id: chatInfo.id,
-      guest_chat_id: chatInfo.guest_chat_id,
-      guest_id: chatInfo.guest.id,
-    }
-    dispatch(sendMessageThunk(createMessageDto))
+    dispatch(
+      sendMessageThunk(
+        createDtoSendMessage(chatInfo.emoji, TYPE_MESSAGE.ICON, chatInfo)
+      )
+    )
     inputRef.current?.focus()
+  }
+
+  window.onclick = () => {
+    if (showEmojiModal) {
+      setShowEmojiModal(false)
+    }
+  }
+
+  const handleSendEmoji = (emoji: string) => {
+    dispatch(
+      sendMessageThunk(createDtoSendMessage(emoji, TYPE_MESSAGE.ICON, chatInfo))
+    )
+    setShowEmojiModal(false)
   }
 
   return (
     <div className={styles.FooterChat}>
       {sending && <p>Sending...</p>}
-      <i className='fas fa-plus-circle'></i>
-      <i className='far fa-image'></i>
-      <i className='fas fa-microphone'></i>
+      <i style={{ color: chatInfo.color }} className='fas fa-plus-circle'></i>
+      <i style={{ color: chatInfo.color }} className='far fa-image'></i>
+      <i style={{ color: chatInfo.color }} className='fas fa-microphone'></i>
       <div className={styles.containerInput}>
         <input
           ref={inputRef}
@@ -67,12 +76,36 @@ function FooterChat() {
             }
           }}
         />
-        <i className='fas fa-smile'></i>
+        <i
+          onClick={(e) => {
+            setShowEmojiModal(!showEmojiModal)
+            e.stopPropagation()
+          }}
+          style={{ color: chatInfo.color }}
+          className='fas fa-smile'
+        ></i>
+        {showEmojiModal && (
+          <ul onClick={(e) => e.stopPropagation()}>
+            {EMOJI.map((emoji) => (
+              <li key={emoji} onClick={() => handleSendEmoji(emoji)}>
+                {emoji}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
       {content.trim() ? (
-        <i onClick={handleSendMessage} className='fas fa-paper-plane'></i>
+        <i
+          onClick={handleSendMessage}
+          style={{ color: chatInfo.color }}
+          className='fas fa-paper-plane'
+        ></i>
       ) : (
-        <i onClick={handleSendMainIcon} className='fas fa-thumbs-up'></i>
+        <i
+          onClick={handleSendMainIcon}
+          style={{ color: chatInfo.color }}
+          className={chatInfo.emoji}
+        ></i>
       )}
     </div>
   )

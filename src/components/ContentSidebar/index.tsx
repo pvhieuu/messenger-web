@@ -25,7 +25,13 @@ import {
 } from '../ContentChat/selectors'
 import { sliceContentSidebar } from './slice'
 import { socket } from '../../pages/Dashboard'
-import { chatInfoSelector } from '../HeaderChat/selectors'
+import {
+  chatInfoSelector,
+  updatedBackgroundColorSelector,
+  updatedColorSelector,
+  updatedEmojiSelector,
+  updatedNicknameSelector,
+} from '../HeaderChat/selectors'
 
 function ContentSidebar() {
   const dispatch = useDispatch<typeof store.dispatch>()
@@ -39,6 +45,58 @@ function ContentSidebar() {
   const lastMessage = useSelector(lastMessageSelector)
   const chatInfo = useSelector(chatInfoSelector)
   const newGuestChat = useSelector(newGuestChatSelector)
+  const udpatedNickname = useSelector(updatedNicknameSelector)
+  const updatedColor = useSelector(updatedColorSelector)
+  const updatedBackgroundColor = useSelector(updatedBackgroundColorSelector)
+  const updatedEmoji = useSelector(updatedEmojiSelector)
+
+  useEffect(() => {
+    if (Object.keys(udpatedNickname).length > 0) {
+      dispatch(
+        sliceContentSidebar.actions.updateNickname({
+          chat_id: chatInfo.id,
+          data: udpatedNickname,
+        })
+      )
+      dispatch(sliceHeaderChat.actions.updateNickname({}))
+    }
+  }, [udpatedNickname, dispatch, chatInfo])
+
+  useEffect(() => {
+    if (updatedColor) {
+      dispatch(
+        sliceContentSidebar.actions.updateColor({
+          chat_id: chatInfo.id,
+          color: updatedColor,
+        })
+      )
+      dispatch(sliceHeaderChat.actions.updateColor(null))
+    }
+  }, [updatedColor, dispatch, chatInfo])
+
+  useEffect(() => {
+    if (updatedBackgroundColor) {
+      dispatch(
+        sliceContentSidebar.actions.updateBackgroundColor({
+          chat_id: chatInfo.id,
+          background_color: updatedBackgroundColor,
+        })
+      )
+      dispatch(sliceHeaderChat.actions.updateBackgroundColor(null))
+    }
+  }, [updatedBackgroundColor, dispatch, chatInfo])
+
+  useEffect(() => {
+    if (updatedEmoji) {
+      dispatch(
+        sliceContentSidebar.actions.updateEmoji({
+          chat_id: chatInfo.id,
+          emoji: updatedEmoji,
+        })
+      )
+      dispatch(sliceHeaderChat.actions.updateEmoji(null))
+    }
+  }, [updatedEmoji, dispatch, chatInfo])
 
   useEffect(() => {
     dispatch(getListChatsThunk())
@@ -101,8 +159,11 @@ function ContentSidebar() {
           readed: false,
         })
       )
-      data.chat_id === chatInfo.id &&
+      data.chat_id === chatInfo?.id &&
         dispatch(updateReadedThunk({ chat_id: data.chat_id }))
+      new Audio(
+        'http://freesoundeffect.net/sites/default/files/social-media-alert-sound-effect-65341187.mp3'
+      ).play()
     })
 
     return () => {
@@ -157,6 +218,93 @@ function ContentSidebar() {
     }
   }, [dispatch, myInfo.id])
 
+  useEffect(() => {
+    socket.on(`listen change chat color of user: ${myInfo.id}`, (data) => {
+      dispatch(
+        sliceContentSidebar.actions.updateColor({
+          chat_id: data.chat_id,
+          color: data.color,
+        })
+      )
+      if (chatInfo?.id && data.chat_id === chatInfo.id) {
+        dispatch(sliceHeaderChat.actions.updateColorChatInfo(data.color))
+      }
+    })
+
+    return () => {
+      socket.removeListener(`listen change chat color of user: ${myInfo.id}`)
+    }
+  }, [myInfo.id, dispatch, chatInfo])
+
+  useEffect(() => {
+    socket.on(
+      `listen change chat background color of user: ${myInfo.id}`,
+      (data) => {
+        dispatch(
+          sliceContentSidebar.actions.updateBackgroundColor({
+            chat_id: data.chat_id,
+            background_color: data.background_color,
+          })
+        )
+        if (chatInfo?.id && data.chat_id === chatInfo.id) {
+          dispatch(
+            sliceHeaderChat.actions.updateBackgroundColorChatInfo(
+              data.background_color
+            )
+          )
+        }
+      }
+    )
+
+    return () => {
+      socket.removeListener(
+        `listen change chat background color of user: ${myInfo.id}`
+      )
+    }
+  }, [myInfo.id, dispatch, chatInfo])
+
+  useEffect(() => {
+    socket.on(`listen change chat emoji of user: ${myInfo.id}`, (data) => {
+      dispatch(
+        sliceContentSidebar.actions.updateEmoji({
+          chat_id: data.chat_id,
+          emoji: data.emoji,
+        })
+      )
+      if (chatInfo?.id && data.chat_id === chatInfo.id) {
+        dispatch(sliceHeaderChat.actions.updateEmojiChatInfo(data.emoji))
+      }
+    })
+
+    return () => {
+      socket.removeListener(`listen change chat emoji of user: ${myInfo.id}`)
+    }
+  }, [myInfo.id, dispatch, chatInfo])
+
+  useEffect(() => {
+    socket.on(`listen change chat nickname of user: ${myInfo.id}`, (data) => {
+      const updated_nickname = {
+        nickname_host: data.updated_nickname.nickname_guest,
+        nickname_guest: data.updated_nickname.nickname_host,
+      }
+      dispatch(
+        sliceContentSidebar.actions.updateNickname({
+          chat_id: data.chat_id,
+          data: updated_nickname,
+        })
+      )
+      if (chatInfo?.id && data.chat_id === chatInfo.id) {
+        dispatch(
+          sliceHeaderChat.actions.updateNicknameChatInfo(updated_nickname)
+        )
+      }
+    })
+
+    return () => {
+      socket.removeListener(`listen change chat nickname of user: ${myInfo.id}`)
+    }
+  }, [dispatch, myInfo, chatInfo])
+
   return !showSearchUsers ? (
     <ul className={styles.ContentSidebar}>
       {listChats.map((chat: IChat) => {
@@ -179,7 +327,11 @@ function ContentSidebar() {
                 alt='avatar'
               />
               <div className={styles.containerInfo}>
-                <p>{chat.guest.fullname}</p>
+                <p>
+                  {chat.nickname_guest
+                    ? chat.nickname_guest
+                    : chat.guest.fullname}
+                </p>
                 {chat?.last_message && chat.last_message[0] && (
                   <div className={styles.lastMessage}>
                     <span>{`${
@@ -187,8 +339,8 @@ function ContentSidebar() {
                         ? 'You: '
                         : ''
                     }${
-                      chat.last_message[0].content === 'fas fa-thumbs-up'
-                        ? '👍'
+                      chat.last_message[0].content.startsWith('fa')
+                        ? 'icons'
                         : chat.last_message[0].content
                     }`}</span>
                     <span>{`- ${moment(chat.last_message[0].created_at)

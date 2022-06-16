@@ -78,28 +78,41 @@ function ContentChat() {
 
   return (
     <ul onScroll={handleScroll} className={styles.ContentChat}>
-      {listMessages.map((message: IMessage) => (
-        <li
-          key={message.id}
-          className={clsx(
-            message.sender_id === chatInfo.host.id ? styles.me : '',
-            message.type === 'icon' ? styles.icon : ''
-          )}
-        >
-          <span>
-            {message.type === 'icon' && message.content.startsWith('fas') ? (
-              <i className={message.content}></i>
-            ) : (
-              message.content
+      {listMessages.map((message: IMessage) => {
+        const classMe = message.sender_id === chatInfo.host.id
+        const classIcon = message.type === 'icon'
+        const classConfig = message.type === 'config'
+        return (
+          <li
+            key={message.id}
+            className={clsx(
+              classMe ? styles.me : '',
+              classIcon ? styles.icon : '',
+              classConfig ? styles.config : ''
             )}
-          </span>
-          <div className={styles.options}>
-            <i className='far fa-smile'></i>
-            <i className='fas fa-share'></i>
-            <i className='fas fa-ellipsis-v'></i>
-          </div>
-        </li>
-      ))}
+          >
+            <span
+              style={{
+                backgroundColor: classMe && !classIcon && chatInfo.color,
+                color: classIcon && chatInfo.color,
+              }}
+            >
+              {classIcon && message.content.startsWith('fa') ? (
+                <i className={message.content}></i>
+              ) : (
+                message.content
+              )}
+            </span>
+            {message.type !== 'icon' && message.type !== 'config' && (
+              <div className={styles.options}>
+                <i className='far fa-smile'></i>
+                <i className='fas fa-share'></i>
+                <i className='fas fa-ellipsis-v'></i>
+              </div>
+            )}
+          </li>
+        )
+      })}
       {typing && <p className={styles.typing}>Typing</p>}
       <div ref={messagesEndRef} />
     </ul>

@@ -1,16 +1,134 @@
 import clsx from 'clsx'
-import { useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { BACKGROUND_COLORS, MAIN_COLORS, MAIN_EMOJIS } from '../../constants'
+import { createDtoSendMessage, isKeySpace } from '../../helpers'
+import {
+  IUpdateBackgroundColorDto,
+  IUpdateColorDto,
+  IUpdateEmojiDto,
+  IUpdateNicknameDto,
+  TYPE_MESSAGE,
+} from '../../interfaces'
+import { store } from '../../redux/store'
+import { sendMessageThunk } from '../ContentChat/thunks'
 import { chatInfoSelector } from '../HeaderChat/selectors'
+import {
+  updateBackgroundColorThunk,
+  updateColorThunk,
+  updateEmojiThunk,
+  updateNicknameThunk,
+} from '../HeaderChat/thunks'
 import styles from './ChatInfo.module.scss'
 
 function ChatInfo() {
+  const dispatch = useDispatch<typeof store.dispatch>()
   const [showOptions1, setShowOptions1] = useState(false)
   const [showOptions2, setShowOptions2] = useState(false)
   const [showOptions3, setShowOptions3] = useState(false)
+  const [showModalNickname, setShowModalNickname] = useState(false)
+  const [showModalColor, setShowModalColor] = useState(false)
+  const [showModalEmoji, setShowModalEmoji] = useState(false)
+  const [hostNickname, setHostNickname] = useState('')
+  const [guestNickname, setGuestNickname] = useState('')
 
   const chatInfo = useSelector(chatInfoSelector)
   const { guest } = chatInfo
+
+  useEffect(() => {
+    setHostNickname(
+      chatInfo.nickname_host ? chatInfo.nickname_host : chatInfo.host.fullname
+    )
+    setGuestNickname(
+      chatInfo.nickname_guest
+        ? chatInfo.nickname_guest
+        : chatInfo.guest.fullname
+    )
+  }, [chatInfo])
+
+  const handleChangeNickname = () => {
+    const data = {
+      nickname_host: hostNickname.trim() ? hostNickname.trim() : null,
+      nickname_guest: guestNickname.trim() ? guestNickname.trim() : null,
+    }
+    const updateNicknameDto: IUpdateNicknameDto = {
+      guest_chat_id: chatInfo.guest_chat_id,
+      guest_id: chatInfo.guest.id,
+      chat_id: chatInfo.id,
+      data,
+    }
+    dispatch(updateNicknameThunk(updateNicknameDto))
+    dispatch(
+      sendMessageThunk(
+        createDtoSendMessage(
+          `🚀🚀🚀 ${chatInfo.host.fullname} changed nickname 🚀🚀🚀`,
+          TYPE_MESSAGE.CONFIG,
+          { ...chatInfo, ...data }
+        )
+      )
+    )
+    setShowModalNickname(false)
+  }
+
+  const handleChangeColor = (color: string) => {
+    const udpateColorDto: IUpdateColorDto = {
+      guest_id: chatInfo.guest.id,
+      guest_chat_id: chatInfo.guest_chat_id,
+      chat_id: chatInfo.id,
+      color,
+    }
+    dispatch(updateColorThunk(udpateColorDto))
+    dispatch(
+      sendMessageThunk(
+        createDtoSendMessage(
+          `🔥🔥🔥 ${chatInfo.host.fullname} changed color of chat 🔥🔥🔥`,
+          TYPE_MESSAGE.CONFIG,
+          { ...chatInfo, color }
+        )
+      )
+    )
+    setShowModalColor(false)
+  }
+
+  const handleChangeBgColor = (bgColor: string) => {
+    const udpateBackgroundColorDto: IUpdateBackgroundColorDto = {
+      guest_id: chatInfo.guest.id,
+      guest_chat_id: chatInfo.guest_chat_id,
+      chat_id: chatInfo.id,
+      background_color: bgColor,
+    }
+    dispatch(updateBackgroundColorThunk(udpateBackgroundColorDto))
+    dispatch(
+      sendMessageThunk(
+        createDtoSendMessage(
+          `🔥🔥🔥 ${chatInfo.host.fullname} changed color of chat 🔥🔥🔥`,
+          TYPE_MESSAGE.CONFIG,
+          { ...chatInfo, background_color: bgColor }
+        )
+      )
+    )
+    setShowModalColor(false)
+  }
+
+  const handleChangeEmoji = (emoji: string) => {
+    const updateEmojiDto: IUpdateEmojiDto = {
+      guest_id: chatInfo.guest.id,
+      guest_chat_id: chatInfo.guest_chat_id,
+      chat_id: chatInfo.id,
+      emoji,
+    }
+    dispatch(updateEmojiThunk(updateEmojiDto))
+    dispatch(
+      sendMessageThunk(
+        createDtoSendMessage(
+          `⚽⚽⚽ ${chatInfo.host.fullname} changed emoji of chat ⚽⚽⚽`,
+          TYPE_MESSAGE.CONFIG,
+          { ...chatInfo, emoji }
+        )
+      )
+    )
+    setShowModalEmoji(false)
+  }
 
   return (
     <div className={styles.ChatInfo}>
@@ -20,7 +138,9 @@ function ChatInfo() {
         }
         alt='avatar'
       />
-      <p>{guest.fullname}</p>
+      <p>
+        {chatInfo.nickname_guest ? chatInfo.nickname_guest : guest.fullname}
+      </p>
       <div
         onClick={() => setShowOptions1(!showOptions1)}
         className={styles.label}
@@ -35,17 +155,138 @@ function ChatInfo() {
       </div>
       {showOptions1 && (
         <ul>
-          <li>
-            <i className='fas fa-dot-circle'></i>
+          <li onClick={() => setShowModalColor(true)}>
+            <i
+              className='fas fa-dot-circle'
+              style={{ color: chatInfo.color }}
+            ></i>
             <span>Đổi chủ đề</span>
+            {showModalColor && (
+              <div
+                onClick={(e) => {
+                  setShowModalColor(false)
+                  e.stopPropagation()
+                }}
+                className={styles.color}
+              >
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  className={styles.modalColor}
+                >
+                  <p>Main color</p>
+                  <ul>
+                    {MAIN_COLORS.map((color: string) => (
+                      <li
+                        key={color}
+                        className={styles.ballColor}
+                        style={{ backgroundColor: color }}
+                        onClick={() => handleChangeColor(color)}
+                      ></li>
+                    ))}
+                  </ul>
+                  <p>Background color</p>
+                  <ul>
+                    {BACKGROUND_COLORS.map((bgColor: string) => (
+                      <li
+                        key={bgColor}
+                        className={styles.ballColor}
+                        style={{ backgroundColor: bgColor }}
+                        onClick={() => handleChangeBgColor(bgColor)}
+                      ></li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
           </li>
-          <li>
-            <i className='fas fa-thumbs-up'></i>
+          <li onClick={() => setShowModalEmoji(true)}>
+            <i className={chatInfo.emoji} style={{ color: chatInfo.color }}></i>
             <span>Thay đổi biểu tượng cảm xúc</span>
+            {showModalEmoji && (
+              <div
+                onClick={(e) => {
+                  setShowModalEmoji(false)
+                  e.stopPropagation()
+                }}
+                className={styles.emoji}
+              >
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  className={styles.modalEmoji}
+                >
+                  <p>Main emoji</p>
+                  <ul>
+                    {MAIN_EMOJIS.map((emoji) => (
+                      <i
+                        key={emoji}
+                        style={{ color: chatInfo.color }}
+                        className={emoji}
+                        onClick={() => handleChangeEmoji(emoji)}
+                      ></i>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
           </li>
-          <li>
+          <li onClick={() => setShowModalNickname(true)}>
             <i className='far fa-text-size'></i>
             <span>Chỉnh sửa biệt danh</span>
+            {showModalNickname && (
+              <div
+                onClick={(e) => {
+                  setShowModalNickname(false)
+                  e.stopPropagation()
+                }}
+                className={styles.nickname}
+              >
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  className={styles.modalNickname}
+                >
+                  <p>Change nickname</p>
+                  <label htmlFor='host_nickname'>
+                    {chatInfo.host.fullname}
+                  </label>
+                  <input
+                    type='text'
+                    name='host_nickname'
+                    placeholder='Nickname'
+                    value={hostNickname}
+                    onChange={(e) => {
+                      if (!isKeySpace(e.target.value)) {
+                        setHostNickname(e.target.value)
+                      }
+                    }}
+                  />
+                  <label htmlFor='guest_nickname'>
+                    {chatInfo.guest.fullname}
+                  </label>
+                  <input
+                    type='text'
+                    name='guest_nickname'
+                    placeholder='Nickname'
+                    value={guestNickname}
+                    onChange={(e) => {
+                      if (!isKeySpace(e.target.value)) {
+                        setGuestNickname(e.target.value)
+                      }
+                    }}
+                  />
+                  <div className={styles.containerBtnSubmit}>
+                    <button onClick={() => setShowModalNickname(false)}>
+                      Back
+                    </button>
+                    <button
+                      onClick={handleChangeNickname}
+                      style={{ backgroundColor: chatInfo.color }}
+                    >
+                      Submit
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </li>
           <li>
             <i className='far fa-search'></i>

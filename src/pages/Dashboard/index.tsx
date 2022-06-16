@@ -16,6 +16,7 @@ import { url } from '../../api'
 import { useEffect } from 'react'
 import { store } from '../../redux/store'
 import { updateStatusOnlineThunk } from './thunks'
+import { BACKGROUND_COLOR } from '../../interfaces'
 
 export const socket = io(url)
 
@@ -29,7 +30,14 @@ function Dashboard() {
   }, [dispatch])
 
   return (
-    <div className={styles.Dashboard}>
+    <div
+      className={styles.Dashboard}
+      style={{
+        backgroundColor: chatInfo?.background_color
+          ? chatInfo.background_color
+          : BACKGROUND_COLOR.white,
+      }}
+    >
       <div className={styles.sidebar}>
         <HeaderSidebar />
         <ContentSidebar />

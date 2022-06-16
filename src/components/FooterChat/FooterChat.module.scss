@@ -19,7 +19,6 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    color: var(--main-color);
     transition: all 0.1s linear;
     &:hover {
       cursor: pointer;
@@ -50,13 +49,35 @@
       width: 30px;
       height: 30px;
       border-radius: 50%;
-      color: var(--main-color);
       top: 3px;
       right: 4px;
       transition: all 0.1s linear;
       &:hover {
         cursor: pointer;
         background-color: rgba($color: #000000, $alpha: 0.1);
+      }
+    }
+    > ul {
+      position: absolute;
+      width: 400px;
+      height: 460px;
+      display: flex;
+      flex-wrap: wrap;
+      bottom: 36px;
+      right: 0;
+      background-color: white;
+      box-shadow: 0 0 12px rgba($color: #000000, $alpha: 0.3);
+      border-radius: 8px;
+      padding: 6px;
+      > li {
+        font-size: 36px;
+        height: 40px;
+        margin: 0 6px;
+        transition: all 0.05s linear;
+        &:hover {
+          cursor: pointer;
+          text-shadow: 0 0 6px rgba($color: #000000, $alpha: 0.5);
+        }
       }
     }
   }

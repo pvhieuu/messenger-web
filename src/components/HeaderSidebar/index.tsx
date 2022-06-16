@@ -65,6 +65,7 @@ function HeaderSidebar() {
       new_avatar: newAvatar.trim() ? newAvatar.trim() : null,
     }
     dispatch(changeAvatarThunk(changeAvatarDto))
+    setShowChangeAvatar(false)
   }
 
   const handleLogout = () => {
