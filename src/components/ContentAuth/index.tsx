@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { memo, ReactNode } from 'react'
 import styles from './ContentAuth.module.scss'
 
 function ContentAuth({ children }: { children: ReactNode }) {
@@ -46,4 +46,4 @@ function ContentAuth({ children }: { children: ReactNode }) {
   )
 }
 
-export default ContentAuth
+export default memo(ContentAuth)

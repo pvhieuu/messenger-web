@@ -162,3 +162,8 @@ export interface IUpdateEmojiDto {
   guest_id: string
   emoji: string
 }
+
+export interface IGetListMessagesDto {
+  chat_id: string
+  page: number
+}

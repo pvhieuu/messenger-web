@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { useEffect, useState } from 'react'
+import { memo, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useDebounce } from '../../hooks'
 import { IChangeAvatarDto } from '../../interfaces'
@@ -8,6 +8,7 @@ import { sliceContentSidebar } from '../ContentSidebar/slice'
 import { searchListUsersThunk } from '../ContentSidebar/thunks'
 import { sliceFormLogin } from '../FormLogin/slice'
 import { logoutAccountUserThunk } from '../FormLogin/thunks'
+import { sliceHeaderChat } from '../HeaderChat/slice'
 import styles from './HeaderSidebar.module.scss'
 import {
   contentSearchSelector,
@@ -31,20 +32,20 @@ function HeaderSidebar() {
 
   useEffect(() => {
     debounce.trim()
-      ? dispatch(searchListUsersThunk(debounce))
+      ? dispatch(searchListUsersThunk(debounce.trim()))
       : dispatch(sliceContentSidebar.actions.setListUsers([]))
   }, [debounce, dispatch])
 
-  window.onclick = () => {
+  window.onclick = useCallback(() => {
     showOptions && setShowOptions(false)
     showChangeAvatar && setShowChangeAvatar(false)
-  }
+  }, [showChangeAvatar, showOptions])
 
   useEffect(() => {
     dispatch(getMyInfoThunk())
   }, [dispatch])
 
-  const handleChangeFile = (e: any) => {
+  const handleChangeFile = useCallback((e: any) => {
     const file = e.target.files[0]
     if (file) {
       const reader = new FileReader()
@@ -58,20 +59,22 @@ function HeaderSidebar() {
     } else {
       setNewAvatar('')
     }
-  }
+  }, [])
 
-  const handleChangeAvatar = () => {
+  const handleChangeAvatar = useCallback(() => {
     const changeAvatarDto: IChangeAvatarDto = {
       new_avatar: newAvatar.trim() ? newAvatar.trim() : null,
     }
     dispatch(changeAvatarThunk(changeAvatarDto))
     setShowChangeAvatar(false)
-  }
+  }, [dispatch, newAvatar])
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     dispatch(logoutAccountUserThunk())
     dispatch(sliceFormLogin.actions.setMessage(''))
-  }
+    dispatch(sliceHeaderChat.actions.setChatInfo(null))
+    dispatch(sliceHeaderSidebar.actions.setShowSearchUsers(false))
+  }, [dispatch])
 
   return (
     <div className={styles.HeaderSidebar}>
@@ -219,4 +222,4 @@ function HeaderSidebar() {
   )
 }
 
-export default HeaderSidebar
+export default memo(HeaderSidebar)

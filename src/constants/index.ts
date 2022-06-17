@@ -112,3 +112,10 @@ export const MAIN_EMOJIS: string[] = [
   MAIN_EMOJI.GHOST,
   MAIN_EMOJI.BAN,
 ]
+
+export const ROUTERS = {
+  login: '/login',
+  register: '/register',
+  dashboard: '/dashboard',
+  all: '*',
+}

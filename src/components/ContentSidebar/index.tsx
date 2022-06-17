@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, memo, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { IChat, IDeleteChatDto, IUser } from '../../interfaces'
 import { store } from '../../redux/store'
@@ -32,6 +32,8 @@ import {
   updatedEmojiSelector,
   updatedNicknameSelector,
 } from '../HeaderChat/selectors'
+import { formatContentMessage } from '../../helpers'
+import { sliceContentChat } from '../ContentChat/slice'
 
 function ContentSidebar() {
   const dispatch = useDispatch<typeof store.dispatch>()
@@ -112,27 +114,39 @@ function ContentSidebar() {
     }
   }, [])
 
-  const handleCreateNewChat = (guest_id: string) => {
-    dispatch(createNewChatThunk({ guest_id }))
-    dispatch(sliceHeaderSidebar.actions.setShowSearchUsers(false))
-    dispatch(sliceHeaderSidebar.actions.setContentSearch(''))
-    listChats.forEach((chat: IChat) => {
-      chat.guest.id === guest_id && handleOpenChat(chat)
-    })
-  }
+  const handleOpenChat = useCallback(
+    (chat: IChat) => {
+      dispatch(sliceContentChat.actions.setListMessages([]))
+      dispatch(sliceHeaderChat.actions.setChatInfo(chat))
+      dispatch(sliceFooterChat.actions.setContent(''))
+      dispatch(updateReadedThunk({ chat_id: chat.id }))
+      dispatch(sliceContentChat.actions.setPage(1))
+    },
+    [dispatch]
+  )
 
-  const handleDeleteChat = (deleteChatDto: IDeleteChatDto) => {
-    dispatch(deleteChatThunk(deleteChatDto))
-    if (deleteChatDto.chat_id === chatInfo.id) {
-      dispatch(sliceHeaderChat.actions.setChatInfo(null))
-    }
-  }
+  const handleCreateNewChat = useCallback(
+    (guest_id: string) => {
+      dispatch(createNewChatThunk({ guest_id }))
+      dispatch(sliceHeaderSidebar.actions.setShowSearchUsers(false))
+      dispatch(sliceHeaderSidebar.actions.setContentSearch(''))
+      listChats.forEach((chat: IChat) => {
+        chat.guest.id === guest_id && handleOpenChat(chat)
+      })
+    },
+    [dispatch, handleOpenChat, listChats]
+  )
 
-  const handleOpenChat = (chat: IChat) => {
-    dispatch(sliceHeaderChat.actions.setChatInfo(chat))
-    dispatch(sliceFooterChat.actions.setContent(''))
-    dispatch(updateReadedThunk({ chat_id: chat.id }))
-  }
+  const handleDeleteChat = useCallback(
+    (deleteChatDto: IDeleteChatDto) => {
+      dispatch(deleteChatThunk(deleteChatDto))
+      if (deleteChatDto.chat_id === chatInfo.id) {
+        dispatch(sliceHeaderChat.actions.setChatInfo(null))
+        dispatch(sliceContentChat.actions.setListMessages([]))
+      }
+    },
+    [dispatch, chatInfo]
+  )
 
   useEffect(() => {
     if (lastMessage) {
@@ -309,6 +323,7 @@ function ContentSidebar() {
     <ul className={styles.ContentSidebar}>
       {listChats.map((chat: IChat) => {
         const existingId = showOptions.includes(chat.id)
+        const lastMessage = chat.last_message[0]
         return (
           <Fragment key={chat.id}>
             <li
@@ -332,18 +347,12 @@ function ContentSidebar() {
                     ? chat.nickname_guest
                     : chat.guest.fullname}
                 </p>
-                {chat?.last_message && chat.last_message[0] && (
+                {chat?.last_message && lastMessage && (
                   <div className={styles.lastMessage}>
                     <span>{`${
-                      chat.last_message[0].sender_id === myInfo.id
-                        ? 'You: '
-                        : ''
-                    }${
-                      chat.last_message[0].content.startsWith('fa')
-                        ? 'icons'
-                        : chat.last_message[0].content
-                    }`}</span>
-                    <span>{`- ${moment(chat.last_message[0].created_at)
+                      lastMessage.sender_id === myInfo.id ? 'You: ' : ''
+                    }${formatContentMessage(lastMessage.content)}`}</span>
+                    <span>{`- ${moment(lastMessage.created_at)
                       .fromNow()
                       .replace(' ago', '')
                       .replace('a few', '')}`}</span>
@@ -435,4 +444,4 @@ function ContentSidebar() {
   )
 }
 
-export default ContentSidebar
+export default memo(ContentSidebar)

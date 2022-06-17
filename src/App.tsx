@@ -5,6 +5,7 @@ import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import { useSelector } from 'react-redux'
 import { accessTokenSelector } from './components/FormLogin/selectors'
+import { ROUTERS } from './constants'
 
 function App() {
   const accessToken = useSelector(accessTokenSelector)
@@ -12,21 +13,27 @@ function App() {
   return (
     <Routes>
       <Route
-        path='/login'
-        element={accessToken ? <Navigate to='/dashboard' /> : <Login />}
+        path={ROUTERS.login}
+        element={accessToken ? <Navigate to={ROUTERS.dashboard} /> : <Login />}
       />
       <Route
-        path='/register'
-        element={accessToken ? <Navigate to='/dashboard' /> : <Register />}
-      />
-      <Route
-        path='/dashboard'
-        element={accessToken ? <Dashboard /> : <Navigate to='/login' />}
-      />
-      <Route
-        path='*'
+        path={ROUTERS.register}
         element={
-          accessToken ? <Navigate to='/dashboard' /> : <Navigate to='/login' />
+          accessToken ? <Navigate to={ROUTERS.dashboard} /> : <Register />
+        }
+      />
+      <Route
+        path={ROUTERS.dashboard}
+        element={accessToken ? <Dashboard /> : <Navigate to={ROUTERS.login} />}
+      />
+      <Route
+        path={ROUTERS.all}
+        element={
+          accessToken ? (
+            <Navigate to={ROUTERS.dashboard} />
+          ) : (
+            <Navigate to={ROUTERS.login} />
+          )
         }
       />
     </Routes>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { memo, useEffect, useState } from 'react'
 import styles from './HeaderAuth.module.scss'
 import clsx from 'clsx'
 
@@ -33,4 +33,4 @@ function HeaderAuth() {
   )
 }
 
-export default HeaderAuth
+export default memo(HeaderAuth)

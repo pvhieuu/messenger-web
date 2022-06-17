@@ -25,6 +25,11 @@
       background-color: rgba($color: #000000, $alpha: 0.1);
     }
   }
+  > i:nth-child(2) {
+    > input {
+      display: none;
+    }
+  }
   > i:last-child {
     font-size: 22px;
   }

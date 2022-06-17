@@ -13,7 +13,7 @@ import HeaderSidebar from '../../components/HeaderSidebar'
 import styles from './Dashboard.module.scss'
 import { io } from 'socket.io-client'
 import { url } from '../../api'
-import { useEffect } from 'react'
+import { memo, useEffect } from 'react'
 import { store } from '../../redux/store'
 import { updateStatusOnlineThunk } from './thunks'
 import { BACKGROUND_COLOR } from '../../interfaces'
@@ -57,4 +57,4 @@ function Dashboard() {
   )
 }
 
-export default Dashboard
+export default memo(Dashboard)

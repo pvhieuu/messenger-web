@@ -1,13 +1,13 @@
 import clsx from 'clsx'
-import { useEffect, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { IMessage } from '../../interfaces'
+import { IMessage, TYPE_MESSAGE } from '../../interfaces'
 import { socket } from '../../pages/Dashboard'
 import { store } from '../../redux/store'
 import { contentSelector } from '../FooterChat/selectors'
 import { chatInfoSelector } from '../HeaderChat/selectors'
 import styles from './ContentChat.module.scss'
-import { listMessagesSelector } from './selectors'
+import { listMessagesSelector, pageSelector } from './selectors'
 import { sliceContentChat } from './slice'
 import { getListMessagesThunk } from './thunks'
 
@@ -20,12 +20,13 @@ function ContentChat() {
   const listMessages = useSelector(listMessagesSelector)
   const content = useSelector(contentSelector)
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
+  const page = useSelector(pageSelector)
 
   useEffect(() => {
-    if (chatInfo.id.trim()) {
-      dispatch(getListMessagesThunk(chatInfo.id.trim()))
+    if (chatInfo.id.trim() && page > 0) {
+      dispatch(getListMessagesThunk({ chat_id: chatInfo.id.trim(), page }))
     }
-  }, [chatInfo, dispatch])
+  }, [chatInfo.id, dispatch, page])
 
   useEffect(() => {
     socket.on(`listen message of chat: ${chatInfo.id}`, (data) => {
@@ -37,15 +38,24 @@ function ContentChat() {
     }
   }, [dispatch, chatInfo.id])
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
+  }, [])
 
-  const handleScroll = (e: any) => {
-    setScrollMany(
-      e.target.scrollHeight - e.target.scrollTop - e.target.offsetHeight > 30
-    )
-  }
+  const handleScroll = useCallback(
+    (e: any) => {
+      const ulElement = e.target
+      if (ulElement.scrollTop === 0) {
+        dispatch(sliceContentChat.actions.setPage(page + 1))
+        ulElement.scrollTop = 10
+      }
+      setScrollMany(
+        ulElement.scrollHeight - ulElement.scrollTop - ulElement.offsetHeight >
+          50
+      )
+    },
+    [dispatch, page]
+  )
 
   useEffect(() => {
     setScrollMany(false)
@@ -55,7 +65,7 @@ function ContentChat() {
     if (!scrollMany) {
       scrollToBottom()
     }
-  }, [listMessages, typing, scrollMany])
+  }, [listMessages, typing, scrollMany, scrollToBottom])
 
   useEffect(() => {
     socket.emit(
@@ -80,8 +90,8 @@ function ContentChat() {
     <ul onScroll={handleScroll} className={styles.ContentChat}>
       {listMessages.map((message: IMessage) => {
         const classMe = message.sender_id === chatInfo.host.id
-        const classIcon = message.type === 'icon'
-        const classConfig = message.type === 'config'
+        const classIcon = message.type === TYPE_MESSAGE.ICON
+        const classConfig = message.type === TYPE_MESSAGE.CONFIG
         return (
           <li
             key={message.id}
@@ -91,25 +101,41 @@ function ContentChat() {
               classConfig ? styles.config : ''
             )}
           >
-            <span
-              style={{
-                backgroundColor: classMe && !classIcon && chatInfo.color,
-                color: classIcon && chatInfo.color,
-              }}
-            >
-              {classIcon && message.content.startsWith('fa') ? (
-                <i className={message.content}></i>
-              ) : (
-                message.content
-              )}
-            </span>
-            {message.type !== 'icon' && message.type !== 'config' && (
-              <div className={styles.options}>
-                <i className='far fa-smile'></i>
-                <i className='fas fa-share'></i>
-                <i className='fas fa-ellipsis-v'></i>
-              </div>
+            {(message.type === TYPE_MESSAGE.TEXT ||
+              message.type === TYPE_MESSAGE.ICON ||
+              message.type === TYPE_MESSAGE.CONFIG) && (
+              <span
+                style={{
+                  backgroundColor: classMe && !classIcon && chatInfo.color,
+                  color: classIcon && chatInfo.color,
+                }}
+              >
+                {classIcon && message.content.startsWith('fa') ? (
+                  <i className={message.content}></i>
+                ) : (
+                  message.content
+                )}
+              </span>
             )}
+            {message.type === TYPE_MESSAGE.IMAGE && (
+              <img src={message.content} loading='lazy' alt='link img' />
+            )}
+            {message.type === TYPE_MESSAGE.VIDEO && (
+              <video preload='none' controls src={message.content}></video>
+            )}
+            {message.type === TYPE_MESSAGE.VOICE && (
+              <audio preload='none' controls>
+                <source src={message.content} />
+              </audio>
+            )}
+            {message.type !== TYPE_MESSAGE.ICON &&
+              message.type !== TYPE_MESSAGE.CONFIG && (
+                <div className={styles.options}>
+                  <i className='far fa-smile'></i>
+                  <i className='fas fa-share'></i>
+                  <i className='fas fa-ellipsis-v'></i>
+                </div>
+              )}
           </li>
         )
       })}
@@ -119,4 +145,4 @@ function ContentChat() {
   )
 }
 
-export default ContentChat
+export default memo(ContentChat)

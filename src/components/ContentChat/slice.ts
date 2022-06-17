@@ -8,11 +8,13 @@ const initialState: {
   lastMessage: IMessage | null
   newGuestChat: IChat | null
   sending: boolean
+  page: number
 } = {
   listMessages: [],
   lastMessage: null,
   newGuestChat: null,
   sending: false,
+  page: 1,
 }
 
 export const sliceContentChat = createSlice({
@@ -22,12 +24,21 @@ export const sliceContentChat = createSlice({
     listenMessage: (state, action) => {
       state.listMessages = [...state.listMessages, action.payload]
     },
+    setListMessages: (state, action) => {
+      state.listMessages = action.payload
+    },
+    setPage: (state, action) => {
+      state.page = action.payload
+    },
   },
   extraReducers: (builder) =>
     builder
       .addCase(getListMessagesThunk.fulfilled, (state, action) => {
         if (action.payload.success) {
-          state.listMessages = action.payload.data.list_messages
+          state.listMessages = [
+            ...action.payload.data.list_messages,
+            ...state.listMessages,
+          ]
         }
       })
       .addCase(sendMessageThunk.pending, (state) => {

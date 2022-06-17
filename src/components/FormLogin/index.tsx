@@ -1,6 +1,6 @@
 import styles from './FormLogin.module.scss'
 import { Link } from 'react-router-dom'
-import { useState } from 'react'
+import { memo, useCallback, useState } from 'react'
 import { ILoginAccountUserDto } from '../../interfaces'
 import { isKeySpace } from '../../helpers'
 import { useDispatch, useSelector } from 'react-redux'
@@ -8,6 +8,7 @@ import { loginAccountUserThunk } from './thunks'
 import { store } from '../../redux/store'
 import { successSelector, messageSelector } from './selectors'
 import { sliceFormLogin } from './slice'
+import { ROUTERS } from '../../constants'
 
 function FormLogin() {
   const dispatch = useDispatch<typeof store.dispatch>()
@@ -18,19 +19,22 @@ function FormLogin() {
   const success = useSelector(successSelector)
   const message = useSelector(messageSelector)
 
-  const handleLogin = () => {
+  const handleLogin = useCallback(() => {
     const loginAccountUserDto: ILoginAccountUserDto = {
       phone_or_email: phoneOrEmail.trim(),
       password: password.trim(),
     }
     dispatch(loginAccountUserThunk(loginAccountUserDto))
-  }
+  }, [dispatch, phoneOrEmail, password])
 
-  window.onkeydown = (e) => {
-    if (e.key === 'Enter' && phoneOrEmail.trim() && password.trim()) {
-      handleLogin()
-    }
-  }
+  window.onkeydown = useCallback(
+    (e: any) => {
+      if (e.key === 'Enter' && phoneOrEmail.trim() && password.trim()) {
+        handleLogin()
+      }
+    },
+    [handleLogin, phoneOrEmail, password]
+  )
 
   return (
     <div className={styles.FormLogin}>
@@ -79,7 +83,7 @@ function FormLogin() {
         <button onClick={handleLogin}>Log In</button>
         <Link
           onClick={() => dispatch(sliceFormLogin.actions.setMessage(''))}
-          to='/register'
+          to={ROUTERS.register}
         >
           Don't have an account?
         </Link>
@@ -88,4 +92,4 @@ function FormLogin() {
   )
 }
 
-export default FormLogin
+export default memo(FormLogin)

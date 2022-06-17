@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import styles from './FooterAuth.module.scss'
 
 function FooterAuth() {
@@ -19,4 +20,4 @@ function FooterAuth() {
   )
 }
 
-export default FooterAuth
+export default memo(FooterAuth)

@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { useEffect, useState } from 'react'
+import { memo, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { BACKGROUND_COLORS, MAIN_COLORS, MAIN_EMOJIS } from '../../constants'
 import { createDtoSendMessage, isKeySpace } from '../../helpers'
@@ -46,7 +46,7 @@ function ChatInfo() {
     )
   }, [chatInfo])
 
-  const handleChangeNickname = () => {
+  const handleChangeNickname = useCallback(() => {
     const data = {
       nickname_host: hostNickname.trim() ? hostNickname.trim() : null,
       nickname_guest: guestNickname.trim() ? guestNickname.trim() : null,
@@ -68,67 +68,76 @@ function ChatInfo() {
       )
     )
     setShowModalNickname(false)
-  }
+  }, [dispatch, chatInfo, guestNickname, hostNickname])
 
-  const handleChangeColor = (color: string) => {
-    const udpateColorDto: IUpdateColorDto = {
-      guest_id: chatInfo.guest.id,
-      guest_chat_id: chatInfo.guest_chat_id,
-      chat_id: chatInfo.id,
-      color,
-    }
-    dispatch(updateColorThunk(udpateColorDto))
-    dispatch(
-      sendMessageThunk(
-        createDtoSendMessage(
-          `🔥🔥🔥 ${chatInfo.host.fullname} changed color of chat 🔥🔥🔥`,
-          TYPE_MESSAGE.CONFIG,
-          { ...chatInfo, color }
+  const handleChangeColor = useCallback(
+    (color: string) => {
+      const udpateColorDto: IUpdateColorDto = {
+        guest_id: chatInfo.guest.id,
+        guest_chat_id: chatInfo.guest_chat_id,
+        chat_id: chatInfo.id,
+        color,
+      }
+      dispatch(updateColorThunk(udpateColorDto))
+      dispatch(
+        sendMessageThunk(
+          createDtoSendMessage(
+            `🔥🔥🔥 ${chatInfo.host.fullname} changed color of chat 🔥🔥🔥`,
+            TYPE_MESSAGE.CONFIG,
+            { ...chatInfo, color }
+          )
         )
       )
-    )
-    setShowModalColor(false)
-  }
+      setShowModalColor(false)
+    },
+    [dispatch, chatInfo]
+  )
 
-  const handleChangeBgColor = (bgColor: string) => {
-    const udpateBackgroundColorDto: IUpdateBackgroundColorDto = {
-      guest_id: chatInfo.guest.id,
-      guest_chat_id: chatInfo.guest_chat_id,
-      chat_id: chatInfo.id,
-      background_color: bgColor,
-    }
-    dispatch(updateBackgroundColorThunk(udpateBackgroundColorDto))
-    dispatch(
-      sendMessageThunk(
-        createDtoSendMessage(
-          `🔥🔥🔥 ${chatInfo.host.fullname} changed color of chat 🔥🔥🔥`,
-          TYPE_MESSAGE.CONFIG,
-          { ...chatInfo, background_color: bgColor }
+  const handleChangeBgColor = useCallback(
+    (bgColor: string) => {
+      const udpateBackgroundColorDto: IUpdateBackgroundColorDto = {
+        guest_id: chatInfo.guest.id,
+        guest_chat_id: chatInfo.guest_chat_id,
+        chat_id: chatInfo.id,
+        background_color: bgColor,
+      }
+      dispatch(updateBackgroundColorThunk(udpateBackgroundColorDto))
+      dispatch(
+        sendMessageThunk(
+          createDtoSendMessage(
+            `🔥🔥🔥 ${chatInfo.host.fullname} changed color of chat 🔥🔥🔥`,
+            TYPE_MESSAGE.CONFIG,
+            { ...chatInfo, background_color: bgColor }
+          )
         )
       )
-    )
-    setShowModalColor(false)
-  }
+      setShowModalColor(false)
+    },
+    [dispatch, chatInfo]
+  )
 
-  const handleChangeEmoji = (emoji: string) => {
-    const updateEmojiDto: IUpdateEmojiDto = {
-      guest_id: chatInfo.guest.id,
-      guest_chat_id: chatInfo.guest_chat_id,
-      chat_id: chatInfo.id,
-      emoji,
-    }
-    dispatch(updateEmojiThunk(updateEmojiDto))
-    dispatch(
-      sendMessageThunk(
-        createDtoSendMessage(
-          `⚽⚽⚽ ${chatInfo.host.fullname} changed emoji of chat ⚽⚽⚽`,
-          TYPE_MESSAGE.CONFIG,
-          { ...chatInfo, emoji }
+  const handleChangeEmoji = useCallback(
+    (emoji: string) => {
+      const updateEmojiDto: IUpdateEmojiDto = {
+        guest_id: chatInfo.guest.id,
+        guest_chat_id: chatInfo.guest_chat_id,
+        chat_id: chatInfo.id,
+        emoji,
+      }
+      dispatch(updateEmojiThunk(updateEmojiDto))
+      dispatch(
+        sendMessageThunk(
+          createDtoSendMessage(
+            `⚽⚽⚽ ${chatInfo.host.fullname} changed emoji of chat ⚽⚽⚽`,
+            TYPE_MESSAGE.CONFIG,
+            { ...chatInfo, emoji }
+          )
         )
       )
-    )
-    setShowModalEmoji(false)
-  }
+      setShowModalEmoji(false)
+    },
+    [dispatch, chatInfo]
+  )
 
   return (
     <div className={styles.ChatInfo}>
@@ -354,4 +363,4 @@ function ChatInfo() {
   )
 }
 
-export default ChatInfo
+export default memo(ChatInfo)

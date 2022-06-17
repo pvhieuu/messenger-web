@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import ContentAuth from '../../components/ContentAuth'
 import FooterAuth from '../../components/FooterAuth'
 import FormLogin from '../../components/FormLogin'
@@ -16,4 +17,4 @@ function Login() {
   )
 }
 
-export default Login
+export default memo(Login)

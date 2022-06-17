@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import styles from './FooterSidebar.module.scss'
 
 function FooterSidebar() {
@@ -11,4 +12,4 @@ function FooterSidebar() {
   )
 }
 
-export default FooterSidebar
+export default memo(FooterSidebar)

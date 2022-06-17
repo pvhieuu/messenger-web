@@ -1,6 +1,6 @@
 import styles from './FormRegister.module.scss'
 import { Link } from 'react-router-dom'
-import { useState } from 'react'
+import { memo, useCallback, useState } from 'react'
 import { ICreateUserDto } from '../../interfaces'
 import { isKeySpace } from '../../helpers'
 import { useDispatch, useSelector } from 'react-redux'
@@ -8,6 +8,7 @@ import { registerNewUserThunk } from './thunks'
 import { store } from '../../redux/store'
 import { messageSelector, successSelector } from './selectors'
 import { sliceFormRegister } from './slice'
+import { ROUTERS } from '../../constants'
 
 function FormRegister() {
   const dispatch = useDispatch<typeof store.dispatch>()
@@ -21,7 +22,7 @@ function FormRegister() {
   const success = useSelector(successSelector)
   const message = useSelector(messageSelector)
 
-  const handleRegister = () => {
+  const handleRegister = useCallback(() => {
     const createUserDto: ICreateUserDto = {
       phone_or_email: phoneOrEmail.trim(),
       password: password.trim(),
@@ -29,19 +30,22 @@ function FormRegister() {
       fullname: fullname.trim(),
     }
     dispatch(registerNewUserThunk(createUserDto))
-  }
+  }, [dispatch, fullname, password, phoneOrEmail, repassword])
 
-  window.onkeydown = (e) => {
-    if (
-      e.key === 'Enter' &&
-      phoneOrEmail.trim() &&
-      password.trim() &&
-      repassword.trim() &&
-      fullname.trim()
-    ) {
-      handleRegister()
-    }
-  }
+  window.onkeydown = useCallback(
+    (e: any) => {
+      if (
+        e.key === 'Enter' &&
+        phoneOrEmail.trim() &&
+        password.trim() &&
+        repassword.trim() &&
+        fullname.trim()
+      ) {
+        handleRegister()
+      }
+    },
+    [handleRegister, phoneOrEmail, password, repassword, fullname]
+  )
 
   return (
     <div className={styles.FormRegister}>
@@ -118,7 +122,7 @@ function FormRegister() {
         <button onClick={handleRegister}>Register</button>
         <Link
           onClick={() => dispatch(sliceFormRegister.actions.setMessage(''))}
-          to='/login'
+          to={ROUTERS.login}
         >
           Already have an account?
         </Link>
@@ -127,4 +131,4 @@ function FormRegister() {
   )
 }
 
-export default FormRegister
+export default memo(FormRegister)

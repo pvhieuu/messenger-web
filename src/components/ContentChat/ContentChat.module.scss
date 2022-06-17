@@ -19,6 +19,17 @@
       max-width: 400px;
       overflow: hidden;
     }
+    > img {
+      border-radius: 8px;
+      max-width: 300px;
+    }
+    > video {
+      border-radius: 8px;
+      max-width: 300px;
+    }
+    > audio {
+      height: 42px;
+    }
     > .options {
       display: none;
       > i {

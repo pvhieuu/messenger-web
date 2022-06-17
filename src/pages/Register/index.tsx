@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import ContentAuth from '../../components/ContentAuth'
 import FooterAuth from '../../components/FooterAuth'
 import FormRegister from '../../components/FormRegister'
@@ -16,4 +17,4 @@ function Register() {
   )
 }
 
-export default Register
+export default memo(Register)
