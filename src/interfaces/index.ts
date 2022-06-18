@@ -91,6 +91,7 @@ export interface ICreateMessageDto {
   nickname_guest: string | null
   color: MAIN_COLOR
   emoji: MAIN_EMOJI
+  background_color: BACKGROUND_COLOR
 }
 
 export interface IUpdateReadedDto {

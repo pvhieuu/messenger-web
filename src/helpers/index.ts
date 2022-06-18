@@ -1,4 +1,5 @@
 import {
+  BACKGROUND_COLOR,
   IChat,
   ICreateMessageDto,
   MAIN_COLOR,
@@ -22,6 +23,7 @@ export const createDtoSendMessage = (
   nickname_guest: chatInfo.nickname_guest,
   color: chatInfo.color as MAIN_COLOR,
   emoji: chatInfo.emoji as MAIN_EMOJI,
+  background_color: chatInfo.background_color as BACKGROUND_COLOR,
 })
 
 export const formatContentMessage = (content: string) => {
