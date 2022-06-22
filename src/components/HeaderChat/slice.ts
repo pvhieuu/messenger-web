@@ -10,7 +10,7 @@ import {
 
 const initialState: {
   showChatInfo: boolean
-  chatInfo: IChat | null
+  chatInfo: IChat | null | any
   updatedNickname: { nickname_host?: string; nickname_guest?: string }
   updatedColor: string | null
   updatedBackgroundColor: string | null
@@ -83,6 +83,15 @@ export const sliceHeaderChat = createSlice({
           ...state.chatInfo,
           emoji: action.payload,
         }
+      }
+    },
+    updateStatusOnline: (state, action) => {
+      state.chatInfo = {
+        ...state.chatInfo,
+        guest: {
+          ...state.chatInfo?.guest,
+          ...action.payload,
+        },
       }
     },
   },

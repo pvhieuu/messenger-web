@@ -76,6 +76,19 @@ export const sliceContentSidebar = createSlice({
           : chat
       )
     },
+    updateStatusOnline: (state, action) => {
+      state.listChats = state.listChats.map((chat: IChat) =>
+        chat.guest.id === action.payload.user_id
+          ? {
+              ...chat,
+              guest: {
+                ...chat.guest,
+                ...action.payload.data,
+              },
+            }
+          : chat
+      )
+    },
   },
   extraReducers: (builder) =>
     builder

@@ -53,6 +53,19 @@ function ContentSidebar() {
   const updatedEmoji = useSelector(updatedEmojiSelector)
 
   useEffect(() => {
+    socket.on('listen update status online', (data) => {
+      dispatch(sliceContentSidebar.actions.updateStatusOnline(data))
+      if (chatInfo && chatInfo.guest.id === data.user_id) {
+        dispatch(sliceHeaderChat.actions.updateStatusOnline(data.data))
+      }
+    })
+
+    return () => {
+      socket.removeListener('listen update status online')
+    }
+  }, [dispatch, chatInfo])
+
+  useEffect(() => {
     if (Object.keys(udpatedNickname).length > 0) {
       dispatch(
         sliceContentSidebar.actions.updateNickname({
@@ -116,13 +129,15 @@ function ContentSidebar() {
 
   const handleOpenChat = useCallback(
     (chat: IChat) => {
-      dispatch(sliceContentChat.actions.setListMessages([]))
-      dispatch(sliceHeaderChat.actions.setChatInfo(chat))
-      dispatch(sliceFooterChat.actions.setContent(''))
-      dispatch(updateReadedThunk({ chat_id: chat.id }))
-      dispatch(sliceContentChat.actions.setPage(1))
+      if (chat.id !== chatInfo?.id) {
+        dispatch(sliceContentChat.actions.setListMessages([]))
+        dispatch(sliceHeaderChat.actions.setChatInfo(chat))
+        dispatch(sliceFooterChat.actions.setContent(''))
+        dispatch(updateReadedThunk({ chat_id: chat.id }))
+        dispatch(sliceContentChat.actions.setPage(1))
+      }
     },
-    [dispatch]
+    [dispatch, chatInfo?.id]
   )
 
   const handleCreateNewChat = useCallback(

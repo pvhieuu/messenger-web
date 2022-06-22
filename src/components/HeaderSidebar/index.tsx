@@ -1,8 +1,10 @@
 import clsx from 'clsx'
+import moment from 'moment'
 import { memo, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useDebounce } from '../../hooks'
 import { IChangeAvatarDto } from '../../interfaces'
+import { socket } from '../../pages/Dashboard'
 import { store } from '../../redux/store'
 import { sliceContentSidebar } from '../ContentSidebar/slice'
 import { searchListUsersThunk } from '../ContentSidebar/thunks'
@@ -74,7 +76,14 @@ function HeaderSidebar() {
     dispatch(sliceFormLogin.actions.setMessage(''))
     dispatch(sliceHeaderChat.actions.setChatInfo(null))
     dispatch(sliceHeaderSidebar.actions.setShowSearchUsers(false))
-  }, [dispatch])
+    socket.emit('update status online', {
+      user_id: myInfo.id,
+      data: {
+        status_online: false,
+        last_logout: moment(),
+      },
+    })
+  }, [dispatch, myInfo.id])
 
   return (
     <div className={styles.HeaderSidebar}>

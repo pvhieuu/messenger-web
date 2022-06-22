@@ -1,3 +1,5 @@
+import clsx from 'clsx'
+import moment from 'moment'
 import { memo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import styles from './HeaderChat.module.scss'
@@ -28,15 +30,31 @@ function HeaderChat() {
   return (
     <div className={styles.HeaderChat}>
       <div className={styles.left}>
-        <img
-          src={
-            guest.avatar ? guest.avatar : require('../../assets/img/avatar.png')
-          }
-          alt='avatar'
-        />
-        <span>
-          {chatInfo.nickname_guest ? chatInfo.nickname_guest : guest.fullname}
-        </span>
+        <div
+          className={clsx(
+            styles.containerAvatar,
+            guest.status_online ? styles.online : ''
+          )}
+        >
+          <img
+            src={
+              guest.avatar
+                ? guest.avatar
+                : require('../../assets/img/avatar.png')
+            }
+            alt='avatar'
+          />
+        </div>
+        <div className={styles.containerName}>
+          <p>
+            {chatInfo.nickname_guest ? chatInfo.nickname_guest : guest.fullname}
+          </p>
+          {!guest.status_online && (
+            <span>
+              {guest.last_logout && moment(guest.last_logout).fromNow()}
+            </span>
+          )}
+        </div>
       </div>
       <div style={{ color: chatInfo.color }} className={styles.right}>
         <i className='fas fa-phone-alt'></i>

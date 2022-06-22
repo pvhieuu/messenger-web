@@ -9,19 +9,42 @@
   > .left {
     display: flex;
     align-items: center;
-    > img {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      border: 1px solid rgba($color: #000000, $alpha: 0.3);
-      margin-right: 12px;
+    > .containerAvatar {
+      > img {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 1px solid rgba($color: #000000, $alpha: 0.3);
+        margin-right: 12px;
+      }
     }
-    > span {
-      font-size: 15px;
-      font-weight: 500;
-      &:hover {
-        cursor: pointer;
-        text-decoration: underline;
+    > .containerAvatar.online {
+      position: relative;
+      &::before {
+        position: absolute;
+        top: 24px;
+        left: 26px;
+        content: '';
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: #28a745;
+        border: 1px solid white;
+      }
+    }
+    > .containerName {
+      > p {
+        font-size: 15px;
+        font-weight: 500;
+        line-height: 14px;
+        &:hover {
+          cursor: pointer;
+          text-decoration: underline;
+        }
+      }
+      > span {
+        font-size: 11px;
+        line-height: 14px;
       }
     }
   }

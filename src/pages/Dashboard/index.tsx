@@ -17,6 +17,7 @@ import { memo, useEffect } from 'react'
 import { store } from '../../redux/store'
 import { updateStatusOnlineThunk } from './thunks'
 import { BACKGROUND_COLOR } from '../../interfaces'
+import { myInfoSelector } from '../../components/HeaderSidebar/selectors'
 
 export const socket = io(url)
 
@@ -24,10 +25,17 @@ function Dashboard() {
   const dispatch = useDispatch<typeof store.dispatch>()
   const showChatInfo = useSelector(showChatInfoSelector)
   const chatInfo = useSelector(chatInfoSelector)
+  const myInfo = useSelector(myInfoSelector)
 
   useEffect(() => {
     dispatch(updateStatusOnlineThunk({ status_online: true }))
-  }, [dispatch])
+    socket.emit('update status online', {
+      user_id: myInfo.id,
+      data: {
+        status_online: true,
+      },
+    })
+  }, [dispatch, myInfo.id])
 
   return (
     <div
