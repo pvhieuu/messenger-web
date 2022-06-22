@@ -188,6 +188,8 @@ function ContentSidebar() {
           readed: false,
         })
       )
+      data.chat_id !== chatInfo?.id &&
+        dispatch(sliceContentSidebar.actions.moveToTop(data.chat_id))
       data.chat_id === chatInfo?.id &&
         dispatch(updateReadedThunk({ chat_id: data.chat_id }))
       new Audio(

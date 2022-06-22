@@ -12,6 +12,7 @@ import {
 } from '../../interfaces'
 import { store } from '../../redux/store'
 import { sendMessageThunk } from '../ContentChat/thunks'
+import { sliceContentSidebar } from '../ContentSidebar/slice'
 import { chatInfoSelector } from '../HeaderChat/selectors'
 import {
   updateBackgroundColorThunk,
@@ -67,6 +68,7 @@ function ChatInfo() {
         )
       )
     )
+    dispatch(sliceContentSidebar.actions.moveToTop(chatInfo.id))
     setShowModalNickname(false)
   }, [dispatch, chatInfo, guestNickname, hostNickname])
 
@@ -88,6 +90,7 @@ function ChatInfo() {
           )
         )
       )
+      dispatch(sliceContentSidebar.actions.moveToTop(chatInfo.id))
       setShowModalColor(false)
     },
     [dispatch, chatInfo]
@@ -111,6 +114,7 @@ function ChatInfo() {
           )
         )
       )
+      dispatch(sliceContentSidebar.actions.moveToTop(chatInfo.id))
       setShowModalColor(false)
     },
     [dispatch, chatInfo]
@@ -134,6 +138,7 @@ function ChatInfo() {
           )
         )
       )
+      dispatch(sliceContentSidebar.actions.moveToTop(chatInfo.id))
       setShowModalEmoji(false)
     },
     [dispatch, chatInfo]

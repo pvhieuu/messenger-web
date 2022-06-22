@@ -6,6 +6,7 @@ import { TYPE_MESSAGE } from '../../interfaces'
 import { store } from '../../redux/store'
 import { sendingSelector } from '../ContentChat/selectors'
 import { sendMessageThunk } from '../ContentChat/thunks'
+import { sliceContentSidebar } from '../ContentSidebar/slice'
 import { chatInfoSelector } from '../HeaderChat/selectors'
 import styles from './FooterChat.module.scss'
 import { contentSelector } from './selectors'
@@ -32,6 +33,7 @@ function FooterChat() {
           createDtoSendMessage(linkImage.trim(), TYPE_MESSAGE.IMAGE, chatInfo)
         )
       )
+      dispatch(sliceContentSidebar.actions.moveToTop(chatInfo.id))
       setLinkImage('')
     }
   }, [linkImage, dispatch, chatInfo])
@@ -43,6 +45,7 @@ function FooterChat() {
           createDtoSendMessage(linkVideo.trim(), TYPE_MESSAGE.VIDEO, chatInfo)
         )
       )
+      dispatch(sliceContentSidebar.actions.moveToTop(chatInfo.id))
       setLinkVideo('')
     }
   }, [linkVideo, dispatch, chatInfo])
@@ -54,6 +57,7 @@ function FooterChat() {
           createDtoSendMessage(linkAudio.trim(), TYPE_MESSAGE.VOICE, chatInfo)
         )
       )
+      dispatch(sliceContentSidebar.actions.moveToTop(chatInfo.id))
       setLinkAudio('')
     }
   }, [linkAudio, dispatch, chatInfo])
@@ -64,6 +68,7 @@ function FooterChat() {
         createDtoSendMessage(content, TYPE_MESSAGE.TEXT, chatInfo)
       )
     )
+    dispatch(sliceContentSidebar.actions.moveToTop(chatInfo.id))
     dispatch(sliceFooterChat.actions.setContent(''))
     inputRef.current?.focus()
   }, [dispatch, content, chatInfo])
@@ -83,6 +88,7 @@ function FooterChat() {
         createDtoSendMessage(chatInfo.emoji, TYPE_MESSAGE.ICON, chatInfo)
       )
     )
+    dispatch(sliceContentSidebar.actions.moveToTop(chatInfo.id))
     inputRef.current?.focus()
   }, [dispatch, chatInfo])
 
@@ -99,6 +105,7 @@ function FooterChat() {
           createDtoSendMessage(emoji, TYPE_MESSAGE.ICON, chatInfo)
         )
       )
+      dispatch(sliceContentSidebar.actions.moveToTop(chatInfo.id))
       setShowEmojiModal(false)
     },
     [dispatch, chatInfo]

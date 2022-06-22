@@ -89,6 +89,17 @@ export const sliceContentSidebar = createSlice({
           : chat
       )
     },
+    moveToTop: (state, action) => {
+      const topChat = state.listChats.find(
+        (chat: IChat) => chat.id === action.payload
+      )
+      const restListChats = state.listChats.filter(
+        (chat: IChat) => chat.id !== action.payload
+      )
+      if (topChat) {
+        state.listChats = [topChat, ...restListChats]
+      }
+    },
   },
   extraReducers: (builder) =>
     builder
