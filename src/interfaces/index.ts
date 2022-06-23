@@ -76,6 +76,8 @@ export interface IMessage {
   sender_id: string
   receiver_id: string
   chat_id: string
+  guest_message_id: string | null
+  emoji: string | null
   created_at: Date
   updated_at: Date
   deleted_at: Date | null
@@ -167,4 +169,20 @@ export interface IUpdateEmojiDto {
 export interface IGetListMessagesDto {
   chat_id: string
   page: number
+}
+
+export enum MESSAGE_EMOJI {
+  LOVE = '❤️',
+  LAUGH = '🤣',
+  SAD = '😞',
+  ANGRY = '😡',
+  WOW = '😮',
+}
+
+export interface IUpdateMsgEmojiDto {
+  emoji: string | null
+  message_id: string
+  guest_message_id: string | null
+  chat_id: string
+  guest_chat_id: string
 }

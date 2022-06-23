@@ -1,6 +1,10 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 import { allConfigs, authorization, url } from '../../api'
-import { ICreateMessageDto, IGetListMessagesDto } from '../../interfaces'
+import {
+  ICreateMessageDto,
+  IGetListMessagesDto,
+  IUpdateMsgEmojiDto,
+} from '../../interfaces'
 
 export const getListMessagesThunk = createAsyncThunk(
   'ContentChat/getListMessages',
@@ -26,6 +30,19 @@ export const sendMessageThunk = createAsyncThunk(
       method: 'POST',
       headers: allConfigs(),
       body: JSON.stringify(createMessageDto),
+    })
+    const data = await res.json()
+    return data
+  }
+)
+
+export const updateEmojiThunk = createAsyncThunk(
+  'ContentChat/updateEmojiThunk',
+  async (updateMsgEmojiDto: IUpdateMsgEmojiDto) => {
+    const res = await fetch(`${url}/message/emoji`, {
+      method: 'PATCH',
+      headers: allConfigs(),
+      body: JSON.stringify(updateMsgEmojiDto),
     })
     const data = await res.json()
     return data

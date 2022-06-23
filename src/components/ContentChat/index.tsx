@@ -1,7 +1,8 @@
 import clsx from 'clsx'
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { IMessage, TYPE_MESSAGE } from '../../interfaces'
+import { MESSAGE_EMOJIS } from '../../constants'
+import { IMessage, IUpdateMsgEmojiDto, TYPE_MESSAGE } from '../../interfaces'
 import { socket } from '../../pages/Dashboard'
 import { store } from '../../redux/store'
 import { contentSelector } from '../FooterChat/selectors'
@@ -9,18 +10,34 @@ import { chatInfoSelector } from '../HeaderChat/selectors'
 import styles from './ContentChat.module.scss'
 import { listMessagesSelector, pageSelector } from './selectors'
 import { sliceContentChat } from './slice'
-import { getListMessagesThunk } from './thunks'
+import { getListMessagesThunk, updateEmojiThunk } from './thunks'
 
 function ContentChat() {
   const dispatch = useDispatch<typeof store.dispatch>()
   const [typing, setTyping] = useState(false)
   const [scrollMany, setScrollMany] = useState(true)
+  const [showEmoji, setShowEmoji] = useState('')
 
   const chatInfo = useSelector(chatInfoSelector)
   const listMessages = useSelector(listMessagesSelector)
   const content = useSelector(contentSelector)
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
   const page = useSelector(pageSelector)
+
+  useEffect(() => {
+    socket.on(`listen vote emoji message of chat: ${chatInfo.id}`, (data) => {
+      dispatch(
+        sliceContentChat.actions.updateEmojiMessage({
+          message_id: data.message_id,
+          emoji: data.emoji,
+        })
+      )
+    })
+
+    return () => {
+      socket.removeListener(`listen vote emoji message of chat: ${chatInfo.id}`)
+    }
+  }, [dispatch, chatInfo.id])
 
   useEffect(() => {
     if (chatInfo.id.trim() && page > 0) {
@@ -86,6 +103,38 @@ function ContentChat() {
     }
   }, [chatInfo])
 
+  const handleSetShowEmoji = useCallback(
+    (id: string) => {
+      setShowEmoji(showEmoji === id ? '' : id)
+    },
+    [showEmoji]
+  )
+
+  const sendEmojiMessage = useCallback(
+    (
+      emoji: string,
+      message_id: string,
+      guest_message_id: string | null,
+      old_emoji: string | null
+    ) => {
+      const currentEmoji = emoji === old_emoji ? null : emoji
+      const updateMsgEmojiDto: IUpdateMsgEmojiDto = {
+        emoji: currentEmoji,
+        message_id,
+        guest_message_id,
+        chat_id: chatInfo.id,
+        guest_chat_id: chatInfo.guest_chat_id,
+      }
+      dispatch(updateEmojiThunk(updateMsgEmojiDto))
+      socket.emit('vote emoji message', {
+        chat_id: chatInfo.guest_chat_id,
+        message_id: guest_message_id,
+        emoji: currentEmoji,
+      })
+    },
+    [chatInfo.id, dispatch, chatInfo.guest_chat_id]
+  )
+
   return (
     <ul onScroll={handleScroll} className={styles.ContentChat}>
       {listMessages.map((message: IMessage) => {
@@ -101,6 +150,11 @@ function ContentChat() {
               classConfig ? styles.config : ''
             )}
           >
+            {message.emoji && (
+              <p style={classMe ? { right: -5 } : { left: -5 }}>
+                {message.emoji}
+              </p>
+            )}
             {(message.type === TYPE_MESSAGE.TEXT ||
               message.type === TYPE_MESSAGE.ICON ||
               message.type === TYPE_MESSAGE.CONFIG) && (
@@ -131,7 +185,32 @@ function ContentChat() {
             {message.type !== TYPE_MESSAGE.ICON &&
               message.type !== TYPE_MESSAGE.CONFIG && (
                 <div className={styles.options}>
-                  <i className='far fa-smile'></i>
+                  {chatInfo.guest.id === message.sender_id && (
+                    <i
+                      onClick={() => handleSetShowEmoji(message.id)}
+                      className='far fa-smile'
+                    >
+                      {showEmoji === message.id && (
+                        <ul className={styles.modalEmoji}>
+                          {MESSAGE_EMOJIS.map((emoji: string) => (
+                            <li
+                              onClick={() =>
+                                sendEmojiMessage(
+                                  emoji,
+                                  message.id,
+                                  message.guest_message_id,
+                                  message.emoji
+                                )
+                              }
+                              key={emoji}
+                            >
+                              {emoji}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </i>
+                  )}
                   <i className='fas fa-share'></i>
                   <i className='fas fa-ellipsis-v'></i>
                 </div>

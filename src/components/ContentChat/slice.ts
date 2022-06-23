@@ -1,7 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { IChat, IMessage } from '../../interfaces'
 import { socket } from '../../pages/Dashboard'
-import { getListMessagesThunk, sendMessageThunk } from './thunks'
+import {
+  getListMessagesThunk,
+  sendMessageThunk,
+  updateEmojiThunk,
+} from './thunks'
 
 const initialState: {
   listMessages: IMessage[]
@@ -29,6 +33,13 @@ export const sliceContentChat = createSlice({
     },
     setPage: (state, action) => {
       state.page = action.payload
+    },
+    updateEmojiMessage: (state, action) => {
+      state.listMessages = state.listMessages.map((message: IMessage) =>
+        message.id === action.payload.message_id
+          ? { ...message, emoji: action.payload.emoji }
+          : message
+      )
     },
   },
   extraReducers: (builder) =>
@@ -58,5 +69,12 @@ export const sliceContentChat = createSlice({
             socket.emit('create chat', action.payload.data.new_guest_chat)
           }
         }
+      })
+      .addCase(updateEmojiThunk.fulfilled, (state, action) => {
+        state.listMessages = state.listMessages.map((message: IMessage) =>
+          message.id === action.payload.data.message_id
+            ? { ...message, emoji: action.payload.data.emoji }
+            : message
+        )
       }),
 })

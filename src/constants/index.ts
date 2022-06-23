@@ -1,4 +1,9 @@
-import { BACKGROUND_COLOR, MAIN_COLOR, MAIN_EMOJI } from '../interfaces'
+import {
+  BACKGROUND_COLOR,
+  MAIN_COLOR,
+  MAIN_EMOJI,
+  MESSAGE_EMOJI,
+} from '../interfaces'
 
 export const MAIN_COLORS: MAIN_COLOR[] = [
   MAIN_COLOR.PRIMARY,
@@ -119,3 +124,11 @@ export const ROUTERS = {
   dashboard: '/dashboard',
   all: '*',
 }
+
+export const MESSAGE_EMOJIS: string[] = [
+  MESSAGE_EMOJI.LOVE,
+  MESSAGE_EMOJI.LAUGH,
+  MESSAGE_EMOJI.SAD,
+  MESSAGE_EMOJI.ANGRY,
+  MESSAGE_EMOJI.WOW,
+]
