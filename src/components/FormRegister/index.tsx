@@ -9,6 +9,7 @@ import { store } from '../../redux/store'
 import { messageSelector, successSelector } from './selectors'
 import { sliceFormRegister } from './slice'
 import { ROUTERS } from '../../constants'
+import _ from 'lodash'
 
 function FormRegister() {
   const dispatch = useDispatch<typeof store.dispatch>()
@@ -24,10 +25,10 @@ function FormRegister() {
 
   const handleRegister = useCallback(() => {
     const createUserDto: ICreateUserDto = {
-      phone_or_email: phoneOrEmail.trim(),
-      password: password.trim(),
-      repassword: repassword.trim(),
-      fullname: fullname.trim(),
+      phone_or_email: _.trim(phoneOrEmail),
+      password: _.trim(password),
+      repassword: _.trim(repassword),
+      fullname: _.trim(fullname),
     }
     dispatch(registerNewUserThunk(createUserDto))
   }, [dispatch, fullname, password, phoneOrEmail, repassword])
@@ -36,10 +37,10 @@ function FormRegister() {
     (e: any) => {
       if (
         e.key === 'Enter' &&
-        phoneOrEmail.trim() &&
-        password.trim() &&
-        repassword.trim() &&
-        fullname.trim()
+        _.trim(phoneOrEmail) &&
+        _.trim(password) &&
+        _.trim(repassword) &&
+        _.trim(fullname)
       ) {
         handleRegister()
       }

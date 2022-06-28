@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { EMOJI } from '../../constants'
@@ -27,10 +28,10 @@ function FooterChat() {
   const sending = useSelector(sendingSelector)
 
   useEffect(() => {
-    if (linkImage.trim()) {
+    if (_.trim(linkImage)) {
       dispatch(
         sendMessageThunk(
-          createDtoSendMessage(linkImage.trim(), TYPE_MESSAGE.IMAGE, chatInfo)
+          createDtoSendMessage(_.trim(linkImage), TYPE_MESSAGE.IMAGE, chatInfo)
         )
       )
       dispatch(sliceContentSidebar.actions.moveToTop(chatInfo.id))
@@ -39,10 +40,10 @@ function FooterChat() {
   }, [linkImage, dispatch, chatInfo])
 
   useEffect(() => {
-    if (linkVideo.trim()) {
+    if (_.trim(linkVideo)) {
       dispatch(
         sendMessageThunk(
-          createDtoSendMessage(linkVideo.trim(), TYPE_MESSAGE.VIDEO, chatInfo)
+          createDtoSendMessage(_.trim(linkVideo), TYPE_MESSAGE.VIDEO, chatInfo)
         )
       )
       dispatch(sliceContentSidebar.actions.moveToTop(chatInfo.id))
@@ -51,10 +52,10 @@ function FooterChat() {
   }, [linkVideo, dispatch, chatInfo])
 
   useEffect(() => {
-    if (linkAudio.trim()) {
+    if (_.trim(linkAudio)) {
       dispatch(
         sendMessageThunk(
-          createDtoSendMessage(linkAudio.trim(), TYPE_MESSAGE.VOICE, chatInfo)
+          createDtoSendMessage(_.trim(linkAudio), TYPE_MESSAGE.VOICE, chatInfo)
         )
       )
       dispatch(sliceContentSidebar.actions.moveToTop(chatInfo.id))
@@ -75,7 +76,7 @@ function FooterChat() {
 
   window.onkeydown = useCallback(
     (e: any) => {
-      if (e.key === 'Enter' && content.trim()) {
+      if (e.key === 'Enter' && _.trim(content)) {
         handleSendMessage()
       }
     },
@@ -114,7 +115,7 @@ function FooterChat() {
   const handleChangeFile = useCallback((e: any) => {
     const file = e.target.files[0]
     if (file) {
-      if (file.type.startsWith('image')) {
+      if (_.startsWith(file.type, 'image')) {
         const reader = new FileReader()
         reader.readAsDataURL(file)
         reader.onload = function () {
@@ -124,7 +125,7 @@ function FooterChat() {
           setLinkImage('')
         }
       }
-      if (file.type.startsWith('video')) {
+      if (_.startsWith(file.type, 'video')) {
         const reader = new FileReader()
         reader.readAsDataURL(file)
         reader.onload = function () {
@@ -134,7 +135,7 @@ function FooterChat() {
           setLinkVideo('')
         }
       }
-      if (file.type.startsWith('audio')) {
+      if (_.startsWith(file.type, 'audio')) {
         const reader = new FileReader()
         reader.readAsDataURL(file)
         reader.onload = function () {
@@ -201,7 +202,7 @@ function FooterChat() {
           </ul>
         )}
       </div>
-      {content.trim() ? (
+      {_.trim(content) ? (
         <i
           onClick={handleSendMessage}
           style={{ color: chatInfo.color }}

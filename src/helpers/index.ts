@@ -6,15 +6,16 @@ import {
   MAIN_EMOJI,
   TYPE_MESSAGE,
 } from '../interfaces'
+import _ from 'lodash'
 
-export const isKeySpace = (value: string) => value === ' '
+export const isKeySpace = (value: string) => _.isEqual(value, ' ')
 
 export const createDtoSendMessage = (
   content: string,
   type: TYPE_MESSAGE,
   chatInfo: IChat
 ): ICreateMessageDto => ({
-  content: content.trim(),
+  content: _.trim(content),
   type,
   chat_id: chatInfo.id,
   guest_chat_id: chatInfo.guest_chat_id,
@@ -27,16 +28,16 @@ export const createDtoSendMessage = (
 })
 
 export const formatContentMessage = (content: string) => {
-  if (content.startsWith('fa')) {
+  if (_.startsWith(content, 'fa')) {
     content = TYPE_MESSAGE.ICON
   }
-  if (content.startsWith('data:image')) {
+  if (_.startsWith(content, 'data:image')) {
     content = TYPE_MESSAGE.IMAGE
   }
-  if (content.startsWith('data:video')) {
+  if (_.startsWith(content, 'data:video')) {
     content = TYPE_MESSAGE.VIDEO
   }
-  if (content.startsWith('data:audio')) {
+  if (_.startsWith(content, 'data:audio')) {
     content = TYPE_MESSAGE.VOICE
   }
   return content

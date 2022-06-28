@@ -132,3 +132,19 @@ export const MESSAGE_EMOJIS: string[] = [
   MESSAGE_EMOJI.ANGRY,
   MESSAGE_EMOJI.WOW,
 ]
+
+export interface IBtnRedirect {
+  href: string
+  img: string
+}
+
+export const REDIRECTS: IBtnRedirect[] = [
+  {
+    href: 'https://apps.apple.com/us/app/messenger/id1480068668?mt=12',
+    img: require('../assets/img/appstore.png'),
+  },
+  {
+    href: 'https://apps.microsoft.com/store/detail/9WZDNCRF0083?hl=en-us&gl=US',
+    img: require('../assets/img/microsoft.png'),
+  },
+]

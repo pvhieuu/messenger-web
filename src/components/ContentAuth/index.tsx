@@ -1,4 +1,5 @@
 import { memo, ReactNode } from 'react'
+import { IBtnRedirect, REDIRECTS } from '../../constants'
 import styles from './ContentAuth.module.scss'
 
 function ContentAuth({ children }: { children: ReactNode }) {
@@ -19,26 +20,16 @@ function ContentAuth({ children }: { children: ReactNode }) {
             alt='background'
           />
           <div className={styles.containerBtnDownload}>
-            <a
-              href='https://apps.apple.com/us/app/messenger/id1480068668?mt=12'
-              target='_blank'
-              rel='noreferrer'
-            >
-              <img
-                src={require('../../assets/img/appstore.png')}
-                alt='appstore'
-              />
-            </a>
-            <a
-              href='https://apps.microsoft.com/store/detail/9WZDNCRF0083?hl=en-us&gl=US'
-              target='_blank'
-              rel='noreferrer'
-            >
-              <img
-                src={require('../../assets/img/microsoft.png')}
-                alt='microsoft'
-              />
-            </a>
+            {REDIRECTS.map((redirect: IBtnRedirect) => (
+              <a
+                key={redirect.href}
+                href={redirect.href}
+                target='_blank'
+                rel='noreferrer'
+              >
+                <img src={redirect.img} alt='appstore' />
+              </a>
+            ))}
           </div>
         </div>
       </div>

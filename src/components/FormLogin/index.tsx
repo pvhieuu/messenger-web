@@ -9,6 +9,7 @@ import { store } from '../../redux/store'
 import { successSelector, messageSelector } from './selectors'
 import { sliceFormLogin } from './slice'
 import { ROUTERS } from '../../constants'
+import _ from 'lodash'
 
 function FormLogin() {
   const dispatch = useDispatch<typeof store.dispatch>()
@@ -21,15 +22,15 @@ function FormLogin() {
 
   const handleLogin = useCallback(() => {
     const loginAccountUserDto: ILoginAccountUserDto = {
-      phone_or_email: phoneOrEmail.trim(),
-      password: password.trim(),
+      phone_or_email: _.trim(phoneOrEmail),
+      password: _.trim(password),
     }
     dispatch(loginAccountUserThunk(loginAccountUserDto))
   }, [dispatch, phoneOrEmail, password])
 
   window.onkeydown = useCallback(
     (e: any) => {
-      if (e.key === 'Enter' && phoneOrEmail.trim() && password.trim()) {
+      if (e.key === 'Enter' && _.trim(phoneOrEmail) && _.trim(password)) {
         handleLogin()
       }
     },

@@ -21,6 +21,7 @@ import {
   updateNicknameThunk,
 } from '../HeaderChat/thunks'
 import styles from './ChatInfo.module.scss'
+import _ from 'lodash'
 
 function ChatInfo() {
   const dispatch = useDispatch<typeof store.dispatch>()
@@ -49,8 +50,8 @@ function ChatInfo() {
 
   const handleChangeNickname = useCallback(() => {
     const data = {
-      nickname_host: hostNickname.trim() ? hostNickname.trim() : null,
-      nickname_guest: guestNickname.trim() ? guestNickname.trim() : null,
+      nickname_host: _.trim(hostNickname) ? _.trim(hostNickname) : null,
+      nickname_guest: _.trim(guestNickname) ? _.trim(guestNickname) : null,
     }
     const updateNicknameDto: IUpdateNicknameDto = {
       guest_chat_id: chatInfo.guest_chat_id,

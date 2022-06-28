@@ -1,4 +1,5 @@
 import clsx from 'clsx'
+import _ from 'lodash'
 import moment from 'moment'
 import { memo, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -33,8 +34,8 @@ function HeaderSidebar() {
   const debounce = useDebounce(contentSearch, 500)
 
   useEffect(() => {
-    debounce.trim()
-      ? dispatch(searchListUsersThunk(debounce.trim()))
+    _.trim(debounce)
+      ? dispatch(searchListUsersThunk(_.trim(debounce)))
       : dispatch(sliceContentSidebar.actions.setListUsers([]))
   }, [debounce, dispatch])
 
@@ -65,7 +66,7 @@ function HeaderSidebar() {
 
   const handleChangeAvatar = useCallback(() => {
     const changeAvatarDto: IChangeAvatarDto = {
-      new_avatar: newAvatar.trim() ? newAvatar.trim() : null,
+      new_avatar: _.trim(newAvatar) ? _.trim(newAvatar) : null,
     }
     dispatch(changeAvatarThunk(changeAvatarDto))
     setShowChangeAvatar(false)

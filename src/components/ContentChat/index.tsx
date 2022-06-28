@@ -1,4 +1,5 @@
 import clsx from 'clsx'
+import _ from 'lodash'
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { MESSAGE_EMOJIS } from '../../constants'
@@ -40,8 +41,8 @@ function ContentChat() {
   }, [dispatch, chatInfo.id])
 
   useEffect(() => {
-    if (chatInfo.id.trim() && page > 0) {
-      dispatch(getListMessagesThunk({ chat_id: chatInfo.id.trim(), page }))
+    if (_.trim(chatInfo.id) && page > 0) {
+      dispatch(getListMessagesThunk({ chat_id: _.trim(chatInfo.id), page }))
     }
   }, [chatInfo.id, dispatch, page])
 
@@ -87,7 +88,7 @@ function ContentChat() {
   useEffect(() => {
     socket.emit(
       'typing',
-      content.trim()
+      _.trim(content)
         ? { chat_id: chatInfo.guest_chat_id, value: true }
         : { chat_id: chatInfo.guest_chat_id, value: false }
     )
@@ -164,7 +165,7 @@ function ContentChat() {
                   color: classIcon && chatInfo.color,
                 }}
               >
-                {classIcon && message.content.startsWith('fa') ? (
+                {classIcon && _.startsWith(message.content, 'fa') ? (
                   <i className={message.content}></i>
                 ) : (
                   message.content

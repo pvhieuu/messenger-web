@@ -34,6 +34,7 @@ import {
 } from '../HeaderChat/selectors'
 import { formatContentMessage } from '../../helpers'
 import { sliceContentChat } from '../ContentChat/slice'
+import _ from 'lodash'
 
 function ContentSidebar() {
   const dispatch = useDispatch<typeof store.dispatch>()
@@ -66,7 +67,7 @@ function ContentSidebar() {
   }, [dispatch, chatInfo])
 
   useEffect(() => {
-    if (Object.keys(udpatedNickname).length > 0) {
+    if (_.size(udpatedNickname) > 0) {
       dispatch(
         sliceContentSidebar.actions.updateNickname({
           chat_id: chatInfo.id,
@@ -120,7 +121,7 @@ function ContentSidebar() {
   useEffect(() => {
     const id = setInterval(() => {
       setRefreshTime(Math.random())
-    }, 1000 * 3)
+    }, 1000 * 60)
 
     return () => {
       clearInterval(id)
